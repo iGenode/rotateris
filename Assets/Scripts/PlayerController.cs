@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
     // Since all children are the same - cache one extent for later calculations
     private Vector3 _childExtents;
     private Transform _pivot;
+    private bool _shouldDestroy = false;
 
     void Start()
     {
@@ -64,10 +65,21 @@ public class PlayerController : MonoBehaviour
 
         _timeToMove += Time.deltaTime;
 
-        if (_isMove && !_isGrounded)
+        if (_isMove)
         {
-            MoveFigure(Vector3.down);
-            StartCoroutine(WaitToMove());
+            if (IsSafeToMoveDown())
+            {
+                MoveFigure(Vector3.down);
+                StartCoroutine(WaitToMove());
+                if (_isGrounded)
+                {
+                    _shouldDestroy = false;
+                }
+            } 
+            else
+            {
+                PrepareForDestruction();
+            }
         }
     }
 
@@ -98,13 +110,16 @@ public class PlayerController : MonoBehaviour
     private IEnumerator WaitUntilDestruction()
     {
         yield return new WaitForSeconds(5);
-        Destroy(this);
+        if (_shouldDestroy)
+        {
+            transform.SetLayerRecursively((int)Mathf.Log(StopMovement.value, 2));
+            Destroy(this);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        _isGrounded = true;
-        StartCoroutine(WaitUntilDestruction());
+        PrepareForDestruction();
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -140,14 +155,17 @@ public class PlayerController : MonoBehaviour
             // Test if a part of the object collides with something after roatation
             if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, StopMovement).Length != 0)
             {
+                Debug.Log("Cant just rotate");
                 // If simply rotating isn't enough move to the right
                 point.x++;
                 if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, StopMovement).Length != 0)
                 {
+                    Debug.Log("Cant just rotate and move right");
                     // If moving to the right wasn't enough move to the left of origin (two local)
                     point.x -= 2;
                     if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, StopMovement).Length != 0)
                     {
+                        Debug.Log("Cant rotate at all");
                         return false;
                     }
                     else
@@ -175,10 +193,29 @@ public class PlayerController : MonoBehaviour
         return true;
     }
 
+    private bool IsSafeToMoveDown()
+    {
+        foreach (Transform child in transform)
+        {
+            if (Physics.OverlapBox(child.transform.position + Vector3.down, _childExtents, child.transform.rotation, StopMovement).Length != 0)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void MoveFigure(Vector3 direction)
     {
         MovePoint.Translate(direction);
         transform.Translate(direction, Space.World);
+    }
+
+    private void PrepareForDestruction()
+    {
+        _isGrounded = true;
+        StartCoroutine(WaitUntilDestruction());
+        _shouldDestroy = true;
     }
 
     // Debug
