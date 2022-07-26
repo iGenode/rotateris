@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.InputSystem;
 using UnityEngine;
-using System.Linq;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -22,7 +20,7 @@ public class PlayerController : MonoBehaviour
     // Since all children are the same - cache one extent for later calculations
     private Vector3 _childExtents;
     private Transform _pivot;
-    private bool _shouldDestroy = false;
+    private bool _shouldSettle = false;
 
     void Start()
     {
@@ -71,14 +69,18 @@ public class PlayerController : MonoBehaviour
             {
                 MoveFigure(Vector3.down);
                 StartCoroutine(WaitToMove());
+
+                // If object was able to move down again after being grounded - stop destruction
                 if (_isGrounded)
                 {
-                    _shouldDestroy = false;
+                    Debug.Log("Stop destruction, can move again");
+                    _shouldSettle = false;
+                    _isGrounded = false;
                 }
-            } 
-            else
+            }
+            else if (!_shouldSettle)
             {
-                PrepareForDestruction();
+                PrepareToSettle();
             }
         }
     }
@@ -107,10 +109,10 @@ public class PlayerController : MonoBehaviour
         _isMove = true;
     }
 
-    private IEnumerator WaitUntilDestruction()
+    private IEnumerator WaitUntilSettle()
     {
         yield return new WaitForSeconds(5);
-        if (_shouldDestroy)
+        if (_shouldSettle)
         {
             transform.SetLayerRecursively((int)Mathf.Log(StopMovement.value, 2));
             Destroy(this);
@@ -119,7 +121,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        PrepareForDestruction();
+        PrepareToSettle();
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -172,7 +174,7 @@ public class PlayerController : MonoBehaviour
                     {
                         shouldMoveLeft = true;
                     }
-                } 
+                }
                 else
                 {
                     shouldMoveRight = true;
@@ -197,7 +199,11 @@ public class PlayerController : MonoBehaviour
     {
         foreach (Transform child in transform)
         {
-            if (Physics.OverlapBox(child.transform.position + Vector3.down, _childExtents, child.transform.rotation, StopMovement).Length != 0)
+            if (Physics.OverlapBox(
+                child.transform.position + Vector3.down,
+                _childExtents - Vector3.one * 0.1f,
+                child.transform.rotation,
+                StopMovement).Length != 0)
             {
                 return false;
             }
@@ -211,11 +217,12 @@ public class PlayerController : MonoBehaviour
         transform.Translate(direction, Space.World);
     }
 
-    private void PrepareForDestruction()
+    private void PrepareToSettle()
     {
+        Debug.Log("Scheduled to settle!");
         _isGrounded = true;
-        StartCoroutine(WaitUntilDestruction());
-        _shouldDestroy = true;
+        StartCoroutine(WaitUntilSettle());
+        _shouldSettle = true;
     }
 
     // Debug
