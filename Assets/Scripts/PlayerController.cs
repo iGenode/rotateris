@@ -9,18 +9,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float horizontalMoveDelay = .2f;
     public Transform MovePoint;
-    public LayerMask StopMovement;
+    public LayerMask ObstacleLayerMask;
 
     private GameState _gameState;
     private Vector2 _move;
     private float _timeToMove = 0f;
-    private bool _isMove = false;
+    private bool _shouldMoveDown = false;
     private bool _isGrounded = false;
     private Vector3 _extents;
     // Since all children are the same - cache one extent for later calculations
     private Vector3 _childExtents;
     private Transform _pivot;
     private bool _shouldSettle = false;
+    private bool _isDroppingDown = false;
 
     void Start()
     {
@@ -35,7 +36,13 @@ public class PlayerController : MonoBehaviour
         {
             bounds.Encapsulate(c.bounds);
         }
-        _extents = bounds.extents;
+        _extents = bounds.extents - Vector3.one * 0.1f;
+
+        var collisions = Physics.OverlapBox(MovePoint.position, _extents, transform.rotation, ObstacleLayerMask).Length;
+        if (collisions != 0) // If figure collides with something as it spawns - move up
+        {
+            MoveFigure(new(0, collisions, 0));
+        }
 
         _pivot = GetRotationPoint();
 
@@ -54,7 +61,7 @@ public class PlayerController : MonoBehaviour
             _timeToMove = 0f;
             if (Mathf.Abs(_move.x) == 1)
             {
-                if (Physics.OverlapBox(MovePoint.position + new Vector3(_move.x, 0, 0), _extents, transform.rotation, StopMovement).Length == 0)
+                if (Physics.OverlapBox(MovePoint.position + new Vector3(_move.x, 0, 0), _extents, transform.rotation, ObstacleLayerMask).Length == 0)
                 {
                     MovePoint.position += new Vector3(_move.x, 0, 0);
                 }
@@ -63,12 +70,15 @@ public class PlayerController : MonoBehaviour
 
         _timeToMove += Time.deltaTime;
 
-        if (_isMove)
+        if (_shouldMoveDown)
         {
             if (IsSafeToMoveDown())
             {
                 MoveFigure(Vector3.down);
-                StartCoroutine(WaitToMove());
+                if (!_isDroppingDown)
+                {
+                    StartCoroutine(WaitToMove());
+                }
 
                 // If object was able to move down again after being grounded - stop destruction
                 if (_isGrounded)
@@ -78,9 +88,16 @@ public class PlayerController : MonoBehaviour
                     _isGrounded = false;
                 }
             }
-            else if (!_shouldSettle)
+            else if (!_shouldSettle) // If not already waiting to settle
             {
-                PrepareToSettle();
+                if (_isDroppingDown) // If dropping down settle instantly
+                {
+                    Settle();
+                }
+                else // Else prepare to settle
+                {
+                    PrepareToSettle();
+                }
             }
         }
     }
@@ -104,9 +121,9 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator WaitToMove()
     {
-        _isMove = false;
+        _shouldMoveDown = false;
         yield return new WaitForSeconds(_gameState.Speed);
-        _isMove = true;
+        _shouldMoveDown = true;
     }
 
     private IEnumerator WaitUntilSettle()
@@ -114,8 +131,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(5);
         if (_shouldSettle)
         {
-            transform.SetLayerRecursively((int)Mathf.Log(StopMovement.value, 2));
-            Destroy(this);
+            Settle();
         }
     }
 
@@ -142,6 +158,12 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void OnDropBlock(InputAction.CallbackContext context)
+    {
+        _isDroppingDown = context.performed;
+        _shouldMoveDown = context.performed;
+    }
+
     /// <summary>
     /// Method tests if it is safe to rotate a figure by <paramref name="angle"/> degrees
     /// </summary>
@@ -155,17 +177,17 @@ public class PlayerController : MonoBehaviour
         {
             var point = RotatePointAroundPivot(child.transform.position, _pivot.position, new(0, 0, angle));
             // Test if a part of the object collides with something after roatation
-            if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, StopMovement).Length != 0)
+            if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
             {
                 Debug.Log("Cant just rotate");
                 // If simply rotating isn't enough move to the right
                 point.x++;
-                if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, StopMovement).Length != 0)
+                if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
                 {
                     Debug.Log("Cant just rotate and move right");
                     // If moving to the right wasn't enough move to the left of origin (two local)
                     point.x -= 2;
-                    if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, StopMovement).Length != 0)
+                    if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
                     {
                         Debug.Log("Cant rotate at all");
                         return false;
@@ -203,7 +225,7 @@ public class PlayerController : MonoBehaviour
                 child.transform.position + Vector3.down,
                 _childExtents - Vector3.one * 0.1f,
                 child.transform.rotation,
-                StopMovement).Length != 0)
+                ObstacleLayerMask).Length != 0)
             {
                 return false;
             }
@@ -223,6 +245,13 @@ public class PlayerController : MonoBehaviour
         _isGrounded = true;
         StartCoroutine(WaitUntilSettle());
         _shouldSettle = true;
+    }
+
+    private void Settle()
+    {
+        transform.SetLayerRecursively((int)Mathf.Log(ObstacleLayerMask.value, 2));
+        Destroy(gameObject.GetComponent<Rigidbody>());
+        Destroy(this);
     }
 
     // Debug

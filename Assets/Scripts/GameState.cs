@@ -8,6 +8,7 @@ public class GameState : MonoBehaviour
     public const int MoveUnit = 1;
     public int Score = 0;
     public float angle;
+    public bool IsGameOver = false;
 
     // Start is called before the first frame update
     void Start()

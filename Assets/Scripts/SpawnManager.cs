@@ -3,10 +3,12 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
 
+    public delegate void SettledAction();
+    public static event SettledAction OnSettled;
+
     public GameObject[] PlayerPrefabs;
     [SerializeField]
     private Transform _spawnPoint;
-    //private GameObject _currentPlayer;
     private PlayerController _currentPlayerController;
 
     // Start is called before the first frame update
@@ -20,6 +22,7 @@ public class SpawnManager : MonoBehaviour
     {
         if (_currentPlayerController == null)
         {
+            OnSettled?.Invoke();
             InstantiateNewPlayer();
         }
     }
