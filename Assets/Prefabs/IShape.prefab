@@ -593,7 +593,7 @@ GameObject:
   - component: {fileID: 1762643318626906643}
   m_Layer: 0
   m_Name: Move Point
-  m_TagString: Untagged
+  m_TagString: MovePoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

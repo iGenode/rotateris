@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
                 // If object was able to move down again after being grounded - stop destruction
                 if (_isGrounded)
                 {
-                    Debug.Log("Stop destruction, can move again");
+                    //Debug.Log("Stop destruction, can move again");
                     _shouldSettle = false;
                     _isGrounded = false;
                 }
@@ -179,17 +179,17 @@ public class PlayerController : MonoBehaviour
             // Test if a part of the object collides with something after roatation
             if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
             {
-                Debug.Log("Cant just rotate");
+                //Debug.Log("Cant just rotate");
                 // If simply rotating isn't enough move to the right
                 point.x++;
                 if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
                 {
-                    Debug.Log("Cant just rotate and move right");
+                    //Debug.Log("Cant just rotate and move right");
                     // If moving to the right wasn't enough move to the left of origin (two local)
                     point.x -= 2;
                     if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
                     {
-                        Debug.Log("Cant rotate at all");
+                        //Debug.Log("Cant rotate at all");
                         return false;
                     }
                     else
@@ -252,6 +252,10 @@ public class PlayerController : MonoBehaviour
         transform.SetLayerRecursively((int)Mathf.Log(ObstacleLayerMask.value, 2));
         Destroy(gameObject.GetComponent<Rigidbody>());
         Destroy(this);
+        Destroy(MovePoint.gameObject);
+
+        transform.DetachChildren();
+        Destroy(gameObject);
     }
 
     // Debug
@@ -260,14 +264,5 @@ public class PlayerController : MonoBehaviour
         Gizmos.matrix = transform.localToWorldMatrix;
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(Vector3.zero, _extents * 2);
-
-        //var oldMatrix = Gizmos.matrix;
-
-        //// create a matrix which translates an object by "position", rotates it by "rotation" and scales it by "halfExtends * 2"
-        //Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, _extents * 2);
-        //// Then use it one a default cube which is not translated nor scaled
-        //Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
-
-        //Gizmos.matrix = oldMatrix;
     }
 }

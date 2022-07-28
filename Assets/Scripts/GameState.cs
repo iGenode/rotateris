@@ -10,13 +10,11 @@ public class GameState : MonoBehaviour
     public float angle;
     public bool IsGameOver = false;
 
-    // Start is called before the first frame update
     void Start()
     {
         angle = 360 / PlayingFields;
     }
 
-    // Update is called once per frame
     void Update()
     {
 
