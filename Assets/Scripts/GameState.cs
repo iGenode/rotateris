@@ -3,6 +3,7 @@ using UnityEngine;
 public class GameState : MonoBehaviour
 {
     public float Speed = 1;
+    public float HorizontalMoveDelay = .2f;
     // fixme: set this at the start/pass from menu scene
     public int PlayingFields = 1;
     public const int MoveUnit = 1;

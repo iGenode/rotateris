@@ -6,8 +6,8 @@ public class PlayerController : MonoBehaviour
 {
     // TODO: when instantiating a player give it an index, that index corresponds to players position and angle
     // TODO: 360 / index is an angle at which the players repeat, angle * index is the coordinate of the player
-    [SerializeField]
-    float horizontalMoveDelay = .2f;
+    //[SerializeField]
+    //float horizontalMoveDelay = .2f;
     public Transform MovePoint;
     public LayerMask ObstacleLayerMask;
 
@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
         _gameState = GameObject.Find("Game Controller").GetComponent<GameState>();
 
         MovePoint.parent = null;
+        transform.position = MovePoint.position;
 
         Collider[] colliders = gameObject.GetComponentsInChildren<Collider>();
         _childExtents = colliders[0].bounds.extents;
@@ -36,8 +37,10 @@ public class PlayerController : MonoBehaviour
         {
             bounds.Encapsulate(c.bounds);
         }
+        // Shrink extents to prevent false collision detection
         _extents = bounds.extents - Vector3.one * 0.1f;
 
+        // TODO: probably some logic to game over and delete an object instead of moving up
         var collisions = Physics.OverlapBox(MovePoint.position, _extents, transform.rotation, ObstacleLayerMask).Length;
         if (collisions != 0) // If figure collides with something as it spawns - move up
         {
@@ -51,7 +54,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (_timeToMove >= horizontalMoveDelay)
+        if (_timeToMove >= _gameState.HorizontalMoveDelay)
         {
             transform.position = MovePoint.position;
             _timeToMove = 0;
@@ -61,9 +64,14 @@ public class PlayerController : MonoBehaviour
             _timeToMove = 0f;
             if (Mathf.Abs(_move.x) == 1)
             {
-                if (Physics.OverlapBox(MovePoint.position + new Vector3(_move.x, 0, 0), _extents, transform.rotation, ObstacleLayerMask).Length == 0)
+                var moveDirection = new Vector3(_move.x, 0, 0);
+                if (IsSafeToMove(moveDirection))
                 {
-                    MovePoint.position += new Vector3(_move.x, 0, 0);
+                    MovePoint.position += moveDirection;
+                } 
+                else
+                {
+                    Debug.Log("CANT MOVE");
                 }
             }
         }
@@ -72,7 +80,7 @@ public class PlayerController : MonoBehaviour
 
         if (_shouldMoveDown)
         {
-            if (IsSafeToMoveDown())
+            if (IsSafeToMove(Vector3.down))
             {
                 MoveFigure(Vector3.down);
                 if (!_isDroppingDown)
@@ -83,7 +91,7 @@ public class PlayerController : MonoBehaviour
                 // If object was able to move down again after being grounded - stop destruction
                 if (_isGrounded)
                 {
-                    //Debug.Log("Stop destruction, can move again");
+                    Debug.Log("Stop destruction, can move again");
                     _shouldSettle = false;
                     _isGrounded = false;
                 }
@@ -135,10 +143,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        PrepareToSettle();
-    }
+    // THIS MIGHT BE NEEDED BUT NOT FINDING ANY USE AT THE MOMENT
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    PrepareToSettle();
+    //}
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -160,8 +169,19 @@ public class PlayerController : MonoBehaviour
 
     public void OnDropBlock(InputAction.CallbackContext context)
     {
-        _isDroppingDown = context.performed;
-        _shouldMoveDown = context.performed;
+        //Debug.Log($"Context started is: {context.started}");
+        //Debug.Log($"Context performed is: {context.performed}");
+        //Debug.Log($"Context canceled is: {context.canceled}");
+        if (!context.canceled)
+        {
+            if (_isGrounded || _shouldSettle)
+            {
+                Settle();
+            }
+
+            _isDroppingDown = true;
+            _shouldMoveDown = true;
+        }
     }
 
     /// <summary>
@@ -217,12 +237,12 @@ public class PlayerController : MonoBehaviour
         return true;
     }
 
-    private bool IsSafeToMoveDown()
+     private bool IsSafeToMove(Vector3 direction)
     {
         foreach (Transform child in transform)
         {
             if (Physics.OverlapBox(
-                child.transform.position + Vector3.down,
+                child.transform.position + direction,
                 _childExtents - Vector3.one * 0.1f,
                 child.transform.rotation,
                 ObstacleLayerMask).Length != 0)
