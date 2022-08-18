@@ -68,7 +68,7 @@ public class PlayerController : MonoBehaviour
                 if (IsSafeToMove(moveDirection))
                 {
                     MovePoint.position += moveDirection;
-                } 
+                }
                 else
                 {
                     Debug.Log("CANT MOVE");
@@ -237,7 +237,7 @@ public class PlayerController : MonoBehaviour
         return true;
     }
 
-     private bool IsSafeToMove(Vector3 direction)
+    private bool IsSafeToMove(Vector3 direction)
     {
         foreach (Transform child in transform)
         {

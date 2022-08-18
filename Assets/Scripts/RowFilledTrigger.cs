@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,7 +20,8 @@ public class RowFilledTrigger : MonoBehaviour
 
     private void CheckTriggerForObjects(List<Transform> settledObjects)
     {
-        foreach (Transform child in settledObjects) {
+        foreach (Transform child in settledObjects)
+        {
             if (_checkedYs.Contains(child.position.y)) // If this row was checked already, skip it
             {
                 continue;
@@ -34,7 +34,7 @@ public class RowFilledTrigger : MonoBehaviour
             {
                 DestroyRow(row);
                 _ysToMove.Add(Mathf.Round(child.position.y * 100) / 100);
-            } 
+            }
             else // Else remember row as checked
             {
                 _checkedYs.Add(child.position.y);
