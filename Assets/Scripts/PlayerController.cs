@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (_timeToMove >= _gameState.HorizontalMoveDelay)
+        if (_timeToMove >= GameState.HorizontalMoveDelay)
         {
             transform.position = MovePoint.position;
             _timeToMove = 0;

@@ -12,4 +12,9 @@ public static class Utils
             parent.GetChild(i).SetLayerRecursively(layer);
         }
     }
+
+    public static float RoundFloatToTwoDecimals(float toRound)
+    {
+        return Mathf.Round(toRound * 100) / 100;
+    }
 }

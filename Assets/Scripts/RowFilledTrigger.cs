@@ -12,6 +12,8 @@ public class RowFilledTrigger : MonoBehaviour
 
     private void DestroyRow(Collider[] colliders)
     {
+        GameState.IncreaseLinesCleared();
+
         foreach (Collider collider in colliders)
         {
             Destroy(collider.gameObject);
@@ -22,7 +24,7 @@ public class RowFilledTrigger : MonoBehaviour
     {
         foreach (Transform child in settledObjects)
         {
-            if (_checkedYs.Contains(child.position.y)) // If this row was checked already, skip it
+            if (_checkedYs.Contains(Utils.RoundFloatToTwoDecimals(child.position.y))) // If this row was checked already, skip it
             {
                 continue;
             }
@@ -30,15 +32,12 @@ public class RowFilledTrigger : MonoBehaviour
             var row = Physics.OverlapBox(
                 new Vector3(transform.position.x, child.position.y, transform.position.z),
                 _triggerHalfExtents);
-            if (row.Length == _triggerHalfExtents.x * 2 - 1) // If row is filled, destroy it and dont remember as checked
+            if (row.Length == _triggerHalfExtents.x * 2 - 1) // If row is filled, destroy it and save current y to move
             {
                 DestroyRow(row);
-                _ysToMove.Add(Mathf.Round(child.position.y * 100) / 100);
+                _ysToMove.Add(Utils.RoundFloatToTwoDecimals(child.position.y));
             }
-            else // Else remember row as checked
-            {
-                _checkedYs.Add(child.position.y);
-            }
+            _checkedYs.Add(Utils.RoundFloatToTwoDecimals(child.position.y));
         }
         if (_ysToMove.Count != 0)
         {

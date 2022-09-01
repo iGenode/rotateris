@@ -14,6 +14,7 @@ public class SpawnManager : MonoBehaviour
     private Transform _spawnPoint;
     private List<Transform> _currentChildren = new List<Transform>();
     private PlayerController _currentPlayerController;
+    private int _previousIndex = -1;
 
     void Start()
     {
@@ -34,6 +35,10 @@ public class SpawnManager : MonoBehaviour
     {
         _currentChildren.Clear();
         var index = Random.Range(0, PlayerPrefabs.Length);
+        if (index == _previousIndex) // Reroll index if it's equal to previous to lessen the chance of the same pieces
+        {
+            index = Random.Range(0, PlayerPrefabs.Length);
+        }
         var currentPlayer = Instantiate(PlayerPrefabs[index], _spawnPoint.position, PlayerPrefabs[index].transform.rotation);
         _currentPlayerController = currentPlayer.GetComponent<PlayerController>();
         foreach (Transform child in currentPlayer.transform)
@@ -43,5 +48,6 @@ public class SpawnManager : MonoBehaviour
                 _currentChildren.Add(child);
             }
         }
+        _previousIndex = index;
     }
 }
