@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     public Transform MovePoint;
     public LayerMask ObstacleLayerMask;
 
-    private GameState _gameState;
+    private PlayingFieldState _playingFieldState;
     private Vector2 _move;
     private float _timeToMove = 0f;
     private bool _shouldMoveDown = false;
@@ -25,8 +25,8 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        _gameState = GameObject.Find("Game Controller").GetComponent<GameState>();
-
+        _playingFieldState = transform.parent.Find("Playing Field Controller").GetComponent<PlayingFieldState>();
+        Debug.Log($"Parent is {transform.parent}");
         MovePoint.parent = null;
         transform.position = MovePoint.position;
 
@@ -130,7 +130,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator WaitToMove()
     {
         _shouldMoveDown = false;
-        yield return new WaitForSeconds(_gameState.Speed);
+        yield return new WaitForSeconds(_playingFieldState.Speed);
         _shouldMoveDown = true;
     }
 

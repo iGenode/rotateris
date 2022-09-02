@@ -40,6 +40,7 @@ public class SpawnManager : MonoBehaviour
             index = Random.Range(0, PlayerPrefabs.Length);
         }
         var currentPlayer = Instantiate(PlayerPrefabs[index], _spawnPoint.position, PlayerPrefabs[index].transform.rotation);
+        currentPlayer.transform.parent = transform.parent;
         _currentPlayerController = currentPlayer.GetComponent<PlayerController>();
         foreach (Transform child in currentPlayer.transform)
         {

@@ -682,12 +682,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1407e9504142274ebeb4ac74fec260b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 1
-  HorizontalMoveDelay: 0.2
-  PlayingFields: 1
   Score: 0
+  Level: 0
+  Speed: 1
+  PlayingFields: 1
   angle: 0
   IsGameOver: 0
+  _difficultyLevels: {fileID: 11400000, guid: d5e78c4e9b59f464fb99e79bf2880928, type: 2}
 --- !u!4 &991335352
 Transform:
   m_ObjectHideFlags: 0

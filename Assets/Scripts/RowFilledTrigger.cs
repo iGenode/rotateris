@@ -4,6 +4,8 @@ using UnityEngine;
 public class RowFilledTrigger : MonoBehaviour
 {
     [SerializeField]
+    private PlayingFieldState _playingFieldState;
+    [SerializeField]
     private LayerMask _obstacleLayerMask;
 
     private Vector3 _triggerHalfExtents = new(7, 0.45f, 0.45f);
@@ -12,7 +14,7 @@ public class RowFilledTrigger : MonoBehaviour
 
     private void DestroyRow(Collider[] colliders)
     {
-        GameState.IncreaseLinesCleared();
+        _playingFieldState.IncreaseLinesCleared();
 
         foreach (Collider collider in colliders)
         {
