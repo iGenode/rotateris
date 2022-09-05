@@ -7,10 +7,15 @@ public class RowFilledTrigger : MonoBehaviour
     private PlayingFieldState _playingFieldState;
     [SerializeField]
     private LayerMask _obstacleLayerMask;
-
-    private Vector3 _triggerHalfExtents = new(7, 0.45f, 0.45f);
+    // TODO: make half extents smaller
+    private Vector3 _triggerHalfExtents;
     private HashSet<float> _checkedYs = new HashSet<float>();
     private HashSet<float> _ysToMove = new HashSet<float>();
+
+    private void Start()
+    {
+        _triggerHalfExtents = new(_playingFieldState.Size / 2.0f - .1f, 0.45f, 0.45f);
+    }
 
     private void DestroyRow(Collider[] colliders)
     {
@@ -34,8 +39,10 @@ public class RowFilledTrigger : MonoBehaviour
             var row = Physics.OverlapBox(
                 new Vector3(transform.position.x, child.position.y, transform.position.z),
                 _triggerHalfExtents);
-            if (row.Length == _triggerHalfExtents.x * 2 - 1) // If row is filled, destroy it and save current y to move
+            //Debug.Log($"Found {row.Length} objects");
+            if (row.Length == _playingFieldState.Size) // If row is filled, destroy it and save current y to move
             {
+                //Debug.Log($"Row filled, destroying!");
                 DestroyRow(row);
                 _ysToMove.Add(Utils.RoundFloatToTwoDecimals(child.position.y));
             }

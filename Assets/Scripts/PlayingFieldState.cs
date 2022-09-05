@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayingFieldState : MonoBehaviour
 {
+    public int Size = 13;
     public int LinesCleared = 0;
     public int Score = 0;
     public int Level = 0;

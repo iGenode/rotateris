@@ -26,7 +26,6 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _playingFieldState = transform.parent.Find("Playing Field Controller").GetComponent<PlayingFieldState>();
-        Debug.Log($"Parent is {transform.parent}");
         MovePoint.parent = null;
         transform.position = MovePoint.position;
 
@@ -69,10 +68,10 @@ public class PlayerController : MonoBehaviour
                 {
                     MovePoint.position += moveDirection;
                 }
-                else
-                {
-                    Debug.Log("CANT MOVE");
-                }
+                //else
+                //{
+                //    Debug.Log("CANT MOVE");
+                //}
             }
         }
 
@@ -199,39 +198,55 @@ public class PlayerController : MonoBehaviour
             // Test if a part of the object collides with something after roatation
             if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
             {
-                //Debug.Log("Cant just rotate");
+                //Debug.Log("Can not just rotate");
                 // If simply rotating isn't enough move to the right
                 point.x++;
                 if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
                 {
-                    //Debug.Log("Cant just rotate and move right");
+                    //Debug.Log("Can not just rotate and move right");
                     // If moving to the right wasn't enough move to the left of origin (two local)
                     point.x -= 2;
                     if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
                     {
-                        //Debug.Log("Cant rotate at all");
+                        //Debug.Log("Can not rotate at all");
                         return false;
                     }
                     else
                     {
+                        //Debug.Log("Can rotate with move left");
                         shouldMoveLeft = true;
                     }
                 }
                 else
                 {
+                    //Debug.Log("Can rotate with move right");
                     shouldMoveRight = true;
                 }
             }
         }
         if (shouldMoveRight)
         {
-            MoveFigure(Vector3.right);
-            return true;
+            if (IsSafeToMove(Vector3.right))
+            {
+                MoveFigure(Vector3.right);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         if (shouldMoveLeft)
         {
-            MoveFigure(Vector3.left);
-            return true;
+            if (IsSafeToMove(Vector3.left))
+            {
+                MoveFigure(Vector3.left);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         return true;
