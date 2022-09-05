@@ -55,7 +55,16 @@ public class PlayerController : MonoBehaviour
     {
         if (_timeToMove >= GameState.HorizontalMoveDelay)
         {
-            transform.position = MovePoint.position;
+            // Since actual movement happens on different frames (only after HorizontalMoveDelay)
+            // - check if still safe to move, and if not - return MovePoint to player's transform.position
+            if (IsSafeToMove((MovePoint.position - transform.position).normalized))
+            {
+                transform.position = MovePoint.position;
+            }
+            else
+            {
+                MovePoint.position = transform.position;
+            }
             _timeToMove = 0;
         }
         if (Vector3.Distance(transform.position, MovePoint.position) <= .05f)
@@ -66,6 +75,7 @@ public class PlayerController : MonoBehaviour
                 var moveDirection = new Vector3(_move.x, 0, 0);
                 if (IsSafeToMove(moveDirection))
                 {
+                    // Move MovePoint for the player to follow after HorizontalMoveDelay
                     MovePoint.position += moveDirection;
                 }
                 //else
