@@ -70,7 +70,8 @@ public class PlayerController : MonoBehaviour
         if (Vector3.Distance(transform.position, MovePoint.position) <= .05f)
         {
             _timeToMove = 0f;
-            if (Mathf.Abs(_move.x) == 1)
+            //if (Mathf.Abs(_move.x) == 1)
+            if (_move.x != 0)
             {
                 var moveDirection = new Vector3(_move.x, 0, 0);
                 if (IsSafeToMove(moveDirection))
@@ -158,39 +159,30 @@ public class PlayerController : MonoBehaviour
     //    PrepareToSettle();
     //}
 
-    public void OnMove(InputAction.CallbackContext context)
+    private void OnMove(Vector2 move)
     {
-        _move = context.ReadValue<Vector2>();
+        _move = move;
     }
 
-    public void OnRotate(InputAction.CallbackContext context)
+    private void OnRotate(float direction)
     {
-        if (context.performed)
+        var directionModifier = -Mathf.RoundToInt(direction);
+        if (_pivot && IsSafeToRotate(90 * directionModifier))
         {
-            var direction = -(int)context.ReadValue<Vector2>().x;
-            if (_pivot && IsSafeToRotate(90 * direction))
-            {
-                transform.RotateAround(_pivot.position, Vector3.forward, 90 * direction);
-                MovePoint.position = transform.position;
-            }
+            transform.RotateAround(_pivot.position, Vector3.forward, 90 * directionModifier);
+            MovePoint.position = transform.position;
         }
     }
 
-    public void OnDropBlock(InputAction.CallbackContext context)
+    private void OnDropBlock()
     {
-        //Debug.Log($"Context started is: {context.started}");
-        //Debug.Log($"Context performed is: {context.performed}");
-        //Debug.Log($"Context canceled is: {context.canceled}");
-        if (!context.canceled)
+        if (_isGrounded || _shouldSettle)
         {
-            if (_isGrounded || _shouldSettle)
-            {
-                Settle();
-            }
-
-            _isDroppingDown = true;
-            _shouldMoveDown = true;
+            Settle();
         }
+
+        _isDroppingDown = true;
+        _shouldMoveDown = true;
     }
 
     /// <summary>
@@ -301,6 +293,20 @@ public class PlayerController : MonoBehaviour
 
         transform.DetachChildren();
         Destroy(gameObject);
+    }
+
+    private void OnEnable()
+    {
+        InputController.OnMoveEvent += OnMove;
+        InputController.OnRotateEvent += OnRotate;
+        InputController.OnDropDownEvent += OnDropBlock;
+    }
+
+    private void OnDisable()
+    {
+        InputController.OnMoveEvent -= OnMove;
+        InputController.OnRotateEvent -= OnRotate;
+        InputController.OnDropDownEvent -= OnDropBlock;
     }
 
     // Debug

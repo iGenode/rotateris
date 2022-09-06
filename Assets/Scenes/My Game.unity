@@ -736,6 +736,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsGameOver: 0
+  _mainCamera: {fileID: 963194227}
 --- !u!4 &991335352
 Transform:
   m_ObjectHideFlags: 0
