@@ -26,6 +26,7 @@ public class GameOverTrigger : MonoBehaviour
         }
     }
 
+    // TODO: move GameOver method to GameState and add logic to stop the game
     public void GameOver()
     {
         Debug.Log("GAME OVER");

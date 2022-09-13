@@ -27,11 +27,6 @@ public class PlayingFieldState : MonoBehaviour
     [SerializeField]
     private ConstantListOfFloats _difficultyLevels;
 
-    void Start()
-    {
-        SetSpeed(0);
-    }
-
     void Update()
     {
         if (LinesCleared >= 10 * Level + 10)
@@ -42,7 +37,6 @@ public class PlayingFieldState : MonoBehaviour
 
     public void SetFieldFocus(bool isFocused)
     {
-        // TODO: Speed can only go so low, when actually should always be currentSpeed / 2;
         if (isFocused)
         {
             IsFocused = true;
@@ -52,7 +46,7 @@ public class PlayingFieldState : MonoBehaviour
         else
         {
             IsFocused = isFocused;
-            SetSpeed(Level / 2);
+            SetSpeed(GetSpeedForLevel(Level) * 3);
             OnFocusChangedEvent?.Invoke(false);
         }
     }
@@ -64,6 +58,16 @@ public class PlayingFieldState : MonoBehaviour
 
     private void SetSpeed(int level)
     {
-        Speed = _difficultyLevels.List[level <= 19 ? level : 19];
+        SetSpeed(GetSpeedForLevel(level));
+    }
+
+    private void SetSpeed(float speed)
+    {
+        Speed = speed;
+    }
+
+    private float GetSpeedForLevel(int level)
+    {
+        return _difficultyLevels.List[level <= 19 ? level : 19];
     }
 }

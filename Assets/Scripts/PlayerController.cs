@@ -1,6 +1,8 @@
 using System.Collections;
 using UnityEngine;
 
+// TODO: resolve an issue with controlls propagation when holding horizontal movement
+// TODO: add object storage to store one of the shapes in
 public class PlayerController : MonoBehaviour
 {
     public Transform MovePoint;
@@ -12,7 +14,7 @@ public class PlayerController : MonoBehaviour
     private bool _shouldMoveDown = false;
     private bool _isGrounded = false;
     // Since all children are the same - cache one extent for later calculations
-    private Vector3 _childExtents;
+    private Vector3 _childExtents = new(0.4f, 0.4f, 0.4f);
     private Transform _pivot;
     private bool _shouldSettle = false;
     private bool _isDroppingDown = false;
@@ -29,16 +31,14 @@ public class PlayerController : MonoBehaviour
         MovePoint.parent = null;
         transform.position = MovePoint.position;
 
-        Collider[] colliders = gameObject.GetComponentsInChildren<Collider>();
-        // TODO: create constants class and move this
-        _childExtents = new Vector3(0.4f, 0.4f, 0.4f);
-
-        // TODO: REWORK ASAP
-        if (!IsSafeToMove(Vector3.zero)) // If figure collides with something as it spawns - move up
+        var numberOfCollisions = NumberOfCollisions();
+        // If figure collides with something as it spawns - move up by a number of collisions + 1 for safety
+        if (numberOfCollisions != 0) 
         {
-            MoveFigure(new(0, 4, 0));
+            MoveFigure(new(0, numberOfCollisions + 1, 0));
         }
 
+        // TODO: probably smarter to just pick one of the objects in a prefab
         _pivot = GetRotationPoint();
 
         StartCoroutine(WaitToMove());
@@ -309,6 +309,25 @@ public class PlayerController : MonoBehaviour
 
         transform.DetachChildren();
         Destroy(gameObject);
+    }
+
+    private int NumberOfCollisions()
+    {
+        var count = 0;
+
+        foreach (Transform child in transform)
+        {
+            if (Physics.OverlapBox(
+                child.position,
+                _childExtents,
+                child.rotation,
+                ObstacleLayerMask).Length != 0)
+            {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     private void OnEnable()

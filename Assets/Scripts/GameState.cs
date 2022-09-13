@@ -5,7 +5,7 @@ public class GameState : MonoBehaviour
 {
     public const float HorizontalMoveDelay = .2f;
     public const int MoveUnit = 1;
-    private const float _fieldOffset = 20.0f;
+    private const float _offsetFromWorldCenter = 20.0f;
 
     // fixme: set this at the start/pass from menu scene
     public int PlayingFieldCount = 1;
@@ -24,7 +24,7 @@ public class GameState : MonoBehaviour
 
     private void Start()
     {
-        _defaultSpawnPos = new(0, 0, -_fieldOffset);
+        _defaultSpawnPos = new(0, 0, -_offsetFromWorldCenter);
         _angleStep = 360 / PlayingFieldCount;
 
         for (int i = 0; i < PlayingFieldCount; i++)

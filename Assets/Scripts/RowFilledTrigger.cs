@@ -7,7 +7,6 @@ public class RowFilledTrigger : MonoBehaviour
     private PlayingFieldState _playingFieldState;
     [SerializeField]
     private LayerMask _obstacleLayerMask;
-    // TODO: make half extents smaller
     private Vector3 _triggerHalfExtents;
     private HashSet<float> _checkedYs = new HashSet<float>();
     private HashSet<float> _ysToMove = new HashSet<float>();
