@@ -5,9 +5,13 @@ public class GameOverTrigger : MonoBehaviour
     [SerializeField]
     private LayerMask _obstacleLayerMask;
     private Vector3 _halfExtents;
+    private SpawnManager _spawnManager;
 
     private void Start()
     {
+        _spawnManager = GameObject.Find($"/{transform.parent.name}/Spawn Manager").GetComponent<SpawnManager>();
+        _spawnManager.OnSettled += CheckTriggerForObjects;
+
         _halfExtents = gameObject.GetComponent<Collider>().bounds.extents;
     }
     private void CheckTriggerForObjects()
@@ -29,18 +33,14 @@ public class GameOverTrigger : MonoBehaviour
 
     private void OnEnable()
     {
-        SpawnManager.OnSettled += CheckTriggerForObjects;
+        if (_spawnManager != null)
+        {
+            _spawnManager.OnSettled += CheckTriggerForObjects;
+        }
     }
 
     private void OnDisable()
     {
-        SpawnManager.OnSettled -= CheckTriggerForObjects;
+        _spawnManager.OnSettled -= CheckTriggerForObjects;
     }
-
-    //private void OnDrawGizmos()
-    //{
-    //    Gizmos.matrix = transform.localToWorldMatrix;
-    //    Gizmos.color = Color.red;
-    //    Gizmos.DrawWireCube(Vector3.zero, _halfExtents * 2);
-    //}
 }

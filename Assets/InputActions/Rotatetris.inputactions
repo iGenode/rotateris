@@ -159,7 +159,7 @@
                     "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "DropBlock",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -170,7 +170,7 @@
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad",
                     "action": "DropBlock",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -258,7 +258,7 @@
                     "path": "<Keyboard>/tab",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "RotateField",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -269,7 +269,7 @@
                     "path": "<Keyboard>/r",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "RotateField",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -277,7 +277,7 @@
                 {
                     "name": "Gamepad D-Pad",
                     "id": "7d94b478-aaaa-4916-89d3-7db0b6e78014",
-                    "path": "2DVector",
+                    "path": "1DAxis",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -286,23 +286,23 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "left",
+                    "name": "Negative",
                     "id": "f82db762-1df4-434c-84cb-65d16211bc53",
                     "path": "<Gamepad>/dpad/left",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad",
                     "action": "RotateField",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "right",
+                    "name": "Positive",
                     "id": "35acf53e-5b04-432e-a943-1ba46eecdc3f",
                     "path": "<Gamepad>/dpad/right",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad",
                     "action": "RotateField",
                     "isComposite": false,
                     "isPartOfComposite": true

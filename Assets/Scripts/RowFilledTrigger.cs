@@ -11,9 +11,13 @@ public class RowFilledTrigger : MonoBehaviour
     private Vector3 _triggerHalfExtents;
     private HashSet<float> _checkedYs = new HashSet<float>();
     private HashSet<float> _ysToMove = new HashSet<float>();
+    private SpawnManager _spawnManager;
 
     private void Start()
     {
+        _spawnManager = GameObject.Find($"/{transform.parent.name}/Spawn Manager").GetComponent<SpawnManager>();
+        _spawnManager.OnSettledWithData += CheckTriggerForObjects;
+
         _triggerHalfExtents = new(_playingFieldState.Size / 2.0f - .1f, 0.45f, 0.45f);
     }
 
@@ -38,8 +42,10 @@ public class RowFilledTrigger : MonoBehaviour
 
             var row = Physics.OverlapBox(
                 new Vector3(transform.position.x, child.position.y, transform.position.z),
-                _triggerHalfExtents);
-            //Debug.Log($"Found {row.Length} objects");
+                _triggerHalfExtents,
+                transform.rotation
+            );
+            Debug.Log($"Found {row.Length} objects");
             if (row.Length == _playingFieldState.Size) // If row is filled, destroy it and save current y to move
             {
                 //Debug.Log($"Row filled, destroying!");
@@ -71,11 +77,14 @@ public class RowFilledTrigger : MonoBehaviour
 
     private void OnEnable()
     {
-        SpawnManager.OnSettledWithData += CheckTriggerForObjects;
+        if (_spawnManager != null)
+        {
+            _spawnManager.OnSettledWithData += CheckTriggerForObjects;
+        }
     }
 
     private void OnDisable()
     {
-        SpawnManager.OnSettledWithData += CheckTriggerForObjects;
+        _spawnManager.OnSettledWithData += CheckTriggerForObjects;
     }
 }

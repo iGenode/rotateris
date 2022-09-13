@@ -17,4 +17,9 @@ public static class Utils
     {
         return Mathf.Round(toRound * 100) / 100;
     }
+
+    public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
+    {
+        return Quaternion.Euler(angles) * (point - pivot) + pivot;
+    }
 }

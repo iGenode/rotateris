@@ -3,11 +3,10 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-
     public delegate void SettledAction();
-    public static event SettledAction OnSettled;
+    public event SettledAction OnSettled;
     public delegate void SettledWithDataAction(List<Transform> settledChildren);
-    public static event SettledWithDataAction OnSettledWithData;
+    public event SettledWithDataAction OnSettledWithData;
 
     public GameObject[] PlayerPrefabs;
     [SerializeField]
@@ -39,7 +38,7 @@ public class SpawnManager : MonoBehaviour
         {
             index = Random.Range(0, PlayerPrefabs.Length);
         }
-        var currentPlayer = Instantiate(PlayerPrefabs[index], _spawnPoint.position, PlayerPrefabs[index].transform.rotation);
+        var currentPlayer = Instantiate(PlayerPrefabs[index], _spawnPoint.position, transform.parent.rotation);
         currentPlayer.transform.parent = transform.parent;
         _currentPlayerController = currentPlayer.GetComponent<PlayerController>();
         foreach (Transform child in currentPlayer.transform)

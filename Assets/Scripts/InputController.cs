@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Class for input action event propagation
+/// </summary>
 public class InputController : MonoBehaviour
 {
     public delegate void OnMove(Vector2 move);
@@ -33,8 +33,10 @@ public class InputController : MonoBehaviour
 
     public void OnRotateFieldAction(InputAction.CallbackContext context)
     {
-        // TODO: add logic to prevent multiple calls when camera is moving (only process as button press, no holding)
-        OnRotateFieldEvent?.Invoke(context.ReadValue<float>());
+        if (context.started)
+        {
+            OnRotateFieldEvent?.Invoke(context.ReadValue<float>());
+        }
     }
 
     public void OnDropBlock(InputAction.CallbackContext context)

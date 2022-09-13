@@ -1,13 +1,8 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    // TODO: when instantiating a player give it an index, that index corresponds to players position and angle
-    // TODO: 360 / index is an angle at which the players repeat, angle * index is the coordinate of the player
-    //[SerializeField]
-    //float horizontalMoveDelay = .2f;
     public Transform MovePoint;
     public LayerMask ObstacleLayerMask;
 
@@ -16,7 +11,6 @@ public class PlayerController : MonoBehaviour
     private float _timeToMove = 0f;
     private bool _shouldMoveDown = false;
     private bool _isGrounded = false;
-    private Vector3 _extents;
     // Since all children are the same - cache one extent for later calculations
     private Vector3 _childExtents;
     private Transform _pivot;
@@ -25,25 +19,24 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        _playingFieldState = transform.parent.Find("Playing Field Controller").GetComponent<PlayingFieldState>();
+        _playingFieldState = GetComponentInParent<PlayingFieldState>();
+        _playingFieldState.OnFocusChangedEvent += ChangeInputControllerSubscription;
+        if (!_playingFieldState.IsFocused)
+        {
+            ChangeInputControllerSubscription(false);
+        }
+
         MovePoint.parent = null;
         transform.position = MovePoint.position;
 
         Collider[] colliders = gameObject.GetComponentsInChildren<Collider>();
-        _childExtents = colliders[0].bounds.extents;
-        var bounds = new Bounds(transform.position, Vector3.one);
-        foreach (Collider c in colliders)
-        {
-            bounds.Encapsulate(c.bounds);
-        }
-        // Shrink extents to prevent false collision detection
-        _extents = bounds.extents - Vector3.one * 0.1f;
+        // TODO: create constants class and move this
+        _childExtents = new Vector3(0.4f, 0.4f, 0.4f);
 
-        // TODO: probably some logic to game over and delete an object instead of moving up
-        var collisions = Physics.OverlapBox(MovePoint.position, _extents, transform.rotation, ObstacleLayerMask).Length;
-        if (collisions != 0) // If figure collides with something as it spawns - move up
+        // TODO: REWORK ASAP
+        if (!IsSafeToMove(Vector3.zero)) // If figure collides with something as it spawns - move up
         {
-            MoveFigure(new(0, collisions, 0));
+            MoveFigure(new(0, 4, 0));
         }
 
         _pivot = GetRotationPoint();
@@ -70,10 +63,9 @@ public class PlayerController : MonoBehaviour
         if (Vector3.Distance(transform.position, MovePoint.position) <= .05f)
         {
             _timeToMove = 0f;
-            //if (Mathf.Abs(_move.x) == 1)
             if (_move.x != 0)
             {
-                var moveDirection = new Vector3(_move.x, 0, 0);
+                var moveDirection = _move.x > 0 ? transform.parent.right : -transform.parent.right;
                 if (IsSafeToMove(moveDirection))
                 {
                     // Move MovePoint for the player to follow after HorizontalMoveDelay
@@ -132,11 +124,6 @@ public class PlayerController : MonoBehaviour
         return null;
     }
 
-    private Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
-    {
-        return Quaternion.Euler(angles) * (point - pivot) + pivot;
-    }
-
     private IEnumerator WaitToMove()
     {
         _shouldMoveDown = false;
@@ -153,12 +140,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // THIS MIGHT BE NEEDED BUT NOT FINDING ANY USE AT THE MOMENT
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    PrepareToSettle();
-    //}
-
     private void OnMove(Vector2 move)
     {
         _move = move;
@@ -169,7 +150,8 @@ public class PlayerController : MonoBehaviour
         var directionModifier = -Mathf.RoundToInt(direction);
         if (_pivot && IsSafeToRotate(90 * directionModifier))
         {
-            transform.RotateAround(_pivot.position, Vector3.forward, 90 * directionModifier);
+            //transform.Rotate(Vector3.forward, 90 * directionModifier, Space.Self);
+            transform.RotateAround(_pivot.position, transform.forward, 90 * directionModifier);
             MovePoint.position = transform.position;
         }
     }
@@ -186,71 +168,105 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Method tests if it is safe to rotate a figure by <paramref name="angle"/> degrees
+    /// Tests if it is safe to rotate a figure by <paramref name="angle"/> degrees
     /// </summary>
     /// <param name="angle"> Euler's angle of rotation </param>
     /// <returns> true if rotation is safe and false otherwise </returns>
     private bool IsSafeToRotate(int angle)
     {
-        var shouldMoveRight = false;
-        var shouldMoveLeft = false;
+        var moveRight = false;
+        var moveLeft = false;
+        var canMoveRight = true;
+        var canMoveLeft = true;
         foreach (Transform child in transform)
         {
-            var point = RotatePointAroundPivot(child.transform.position, _pivot.position, new(0, 0, angle));
+            var point = Utils.RotatePointAroundPivot(
+                child.position,
+                _pivot.position,
+                Quaternion.AngleAxis(angle, transform.parent.forward).eulerAngles
+            );
             // Test if a part of the object collides with something after roatation
-            if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
+            if (Physics.OverlapBox(point, _childExtents, child.rotation, ObstacleLayerMask).Length != 0)
             {
-                //Debug.Log("Can not just rotate");
-                // If simply rotating isn't enough move to the right
-                point.x++;
-                if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
+                // If something collides - test right and left translations separately
+                var right = Physics.OverlapBox(point + transform.parent.right, _childExtents, child.rotation,
+                    ObstacleLayerMask).Length == 0;
+                var left = Physics.OverlapBox(point - transform.parent.right, _childExtents, child.rotation,
+                    ObstacleLayerMask).Length == 0;
+                if (!right && !left) // If both translations fail - can not rotate
                 {
-                    //Debug.Log("Can not just rotate and move right");
-                    // If moving to the right wasn't enough move to the left of origin (two local)
-                    point.x -= 2;
-                    if (Physics.OverlapBox(point, _childExtents, child.transform.rotation, ObstacleLayerMask).Length != 0)
+                    //Debug.Log("Cant rotate at all early");
+                    return false;
+                }
+                if (right) // If right translation seems fine - set flag and check if actually safe to move that way
+                {
+                    moveRight = true;
+                    if (canMoveRight) // This if prevents further iterations from overriding the flag
                     {
-                        //Debug.Log("Can not rotate at all");
-                        return false;
-                    }
-                    else
-                    {
-                        //Debug.Log("Can rotate with move left");
-                        shouldMoveLeft = true;
+                        canMoveRight = IsRotationWithMoveSafe(transform.parent.right, angle);
                     }
                 }
-                else
+                if (left) // If left translation seems fine - set flag and check if actually safe to move that way
                 {
-                    //Debug.Log("Can rotate with move right");
-                    shouldMoveRight = true;
+                    moveLeft = true;
+                    if (canMoveLeft) // This if prevents further iterations from overriding the flag
+                    {
+                        canMoveLeft = IsRotationWithMoveSafe(-transform.parent.right, angle);
+                    }
                 }
             }
         }
-        if (shouldMoveRight)
+        if (!canMoveRight && !canMoveLeft) // If can not move either way, then can not rotate
         {
-            if (IsSafeToMove(Vector3.right))
-            {
-                MoveFigure(Vector3.right);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            //Debug.Log("Cant rotate at all");
+            return false;
         }
-        if (shouldMoveLeft)
+        if (moveRight && canMoveRight) // If can rotate right and safe to do so - rotate right with move
         {
-            if (IsSafeToMove(Vector3.left))
-            {
-                MoveFigure(Vector3.left);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            //Debug.Log("Moving right");
+            MoveFigure(transform.parent.right);
+            return true;
+        }
+        if (moveLeft && canMoveLeft) // If can rotate left and safe to do so - rotate left with move
+        {
+            //Debug.Log("Moving left");
+            MoveFigure(-transform.parent.right);
+            return true;
         }
 
+        // If both rotations can not happen for different reasons
+        if ((moveRight && !canMoveRight && !moveLeft && canMoveLeft) ||
+            (!moveRight && canMoveRight && moveLeft && !canMoveLeft))
+        {
+            //Debug.Log("Can not rotate for different reasons");
+            return false;
+        }
+
+        //Debug.Log("Everything seems clean, rotating");
+        return true;
+    }
+
+    /// <summary>
+    /// Tests if an object will be safe after moving with <paramref name="move"/> vector and rotating <paramref name="angle"/> degrees
+    /// </summary>
+    /// <param name="move"> Vector to move the object </param>
+    /// <param name="angle"> Euler's angle to rotate the object </param>
+    /// <returns> true if safe, false otherwise </returns>
+    private bool IsRotationWithMoveSafe(Vector3 move, int angle)
+    {
+        foreach (Transform child in transform)
+        {
+            var point = Utils.RotatePointAroundPivot(
+                child.position + move,
+                _pivot.position + move,
+                Quaternion.AngleAxis(angle, transform.parent.forward).eulerAngles
+            );
+            // If something still collides after rotation and move - cant move that way
+            if (Physics.OverlapBox(point, _childExtents, child.rotation, ObstacleLayerMask).Length != 0)
+            {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -259,9 +275,9 @@ public class PlayerController : MonoBehaviour
         foreach (Transform child in transform)
         {
             if (Physics.OverlapBox(
-                child.transform.position + direction,
-                _childExtents - Vector3.one * 0.1f,
-                child.transform.rotation,
+                child.position + direction,
+                _childExtents,
+                child.rotation,
                 ObstacleLayerMask).Length != 0)
             {
                 return false;
@@ -278,7 +294,7 @@ public class PlayerController : MonoBehaviour
 
     private void PrepareToSettle()
     {
-        Debug.Log("Scheduled to settle!");
+        Debug.Log($"{gameObject} Scheduled to settle! @{transform.parent}");
         _isGrounded = true;
         StartCoroutine(WaitUntilSettle());
         _shouldSettle = true;
@@ -297,23 +313,41 @@ public class PlayerController : MonoBehaviour
 
     private void OnEnable()
     {
-        InputController.OnMoveEvent += OnMove;
-        InputController.OnRotateEvent += OnRotate;
-        InputController.OnDropDownEvent += OnDropBlock;
+        ChangeInputControllerSubscription(true);
+        if (_playingFieldState != null)
+        {
+            _playingFieldState.OnFocusChangedEvent += ChangeInputControllerSubscription;
+        }
     }
 
     private void OnDisable()
     {
-        InputController.OnMoveEvent -= OnMove;
-        InputController.OnRotateEvent -= OnRotate;
-        InputController.OnDropDownEvent -= OnDropBlock;
+        ChangeInputControllerSubscription(false);
+        _playingFieldState.OnFocusChangedEvent -= ChangeInputControllerSubscription;
     }
 
-    // Debug
-    private void OnDrawGizmos()
+    private void ChangeInputControllerSubscription(bool shouldListen)
     {
-        Gizmos.matrix = transform.localToWorldMatrix;
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(Vector3.zero, _extents * 2);
+        if (shouldListen)
+        {
+            InputController.OnMoveEvent += OnMove;
+            InputController.OnRotateEvent += OnRotate;
+            InputController.OnDropDownEvent += OnDropBlock;
+        }
+        else
+        {
+            InputController.OnMoveEvent -= OnMove;
+            InputController.OnRotateEvent -= OnRotate;
+            InputController.OnDropDownEvent -= OnDropBlock;
+        }
     }
+
+    // Old Debug
+    //private void OnDrawGizmos()
+    //{
+    //    Debug.Log($"Drawing gizmos for {gameObject} @{transform.parent} with {_extents}");
+    //    Gizmos.matrix = transform.localToWorldMatrix;
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawWireCube(Vector3.zero, _extents * 2);
+    //}
 }
