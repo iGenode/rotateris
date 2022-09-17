@@ -44,7 +44,7 @@ public class RowFilledTrigger : MonoBehaviour
                 _triggerHalfExtents,
                 transform.rotation
             );
-            Debug.Log($"Found {row.Length} objects");
+            //Debug.Log($"Found {row.Length} objects");
             if (row.Length == _playingFieldState.Size) // If row is filled, destroy it and save current y to move
             {
                 //Debug.Log($"Row filled, destroying!");

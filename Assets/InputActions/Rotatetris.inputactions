@@ -24,15 +24,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "RotateField",
-                    "type": "Value",
-                    "id": "af1f825e-1ab1-4dfb-adf6-15cb7abdf5eb",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
                     "name": "DropBlock",
                     "type": "Button",
                     "id": "9e440674-6791-44b9-9aa5-952182a1e99e",
@@ -238,72 +229,6 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Rotate",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Keyboard",
-                    "id": "104dd0c2-bdf2-4141-8f2a-50efed6ffa1d",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "RotateField",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Negative",
-                    "id": "bdaef1fa-91e6-4f9d-87ea-743b6846b914",
-                    "path": "<Keyboard>/tab",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "RotateField",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Positive",
-                    "id": "9598fc56-96ee-482a-915a-fcf976c96115",
-                    "path": "<Keyboard>/r",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "RotateField",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Gamepad D-Pad",
-                    "id": "7d94b478-aaaa-4916-89d3-7db0b6e78014",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "RotateField",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Negative",
-                    "id": "f82db762-1df4-434c-84cb-65d16211bc53",
-                    "path": "<Gamepad>/dpad/left",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "RotateField",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Positive",
-                    "id": "35acf53e-5b04-432e-a943-1ba46eecdc3f",
-                    "path": "<Gamepad>/dpad/right",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "RotateField",
                     "isComposite": false,
                     "isPartOfComposite": true
                 }

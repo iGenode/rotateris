@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-// TODO: resolve an issue with controlls propagation when holding horizontal movement
 // TODO: add object storage to store one of the shapes in
 public class PlayerController : MonoBehaviour
 {
@@ -19,13 +19,31 @@ public class PlayerController : MonoBehaviour
     private bool _shouldSettle = false;
     private bool _isDroppingDown = false;
 
+    // Controls
+    private PlayerInput _playerInput;
+    private InputAction _moveAction;
+    private InputAction _rotateAction;
+    private InputAction _dropBlockAction;
+
+    private void Awake()
+    {
+        _playerInput = GetComponent<PlayerInput>();
+        _moveAction = _playerInput.actions["Move"];
+        _rotateAction = _playerInput.actions["Rotate"];
+        _dropBlockAction = _playerInput.actions["DropBlock"];
+    }
+
     void Start()
     {
         _playingFieldState = GetComponentInParent<PlayingFieldState>();
-        _playingFieldState.OnFocusChangedEvent += ChangeInputControllerSubscription;
-        if (!_playingFieldState.IsFocused)
+        _playingFieldState.OnFocusChangedEvent += ChangeControllsEventSubscription;
+        if (_playingFieldState.IsFocused)
         {
-            ChangeInputControllerSubscription(false);
+            _playerInput.enabled = true;
+        } 
+        else
+        {
+            ChangeControllsEventSubscription(false);
         }
 
         MovePoint.parent = null;
@@ -140,14 +158,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnMove(Vector2 move)
+    private void OnMove(InputAction.CallbackContext context)
     {
-        _move = move;
+        Debug.Log("Got move vector");
+        _move = context.ReadValue<Vector2>();
     }
 
-    private void OnRotate(float direction)
+    private void OnRotate(InputAction.CallbackContext context)
     {
-        var directionModifier = -Mathf.RoundToInt(direction);
+        var directionModifier = -Mathf.RoundToInt(context.ReadValue<float>());
         if (_pivot && IsSafeToRotate(90 * directionModifier))
         {
             //transform.Rotate(Vector3.forward, 90 * directionModifier, Space.Self);
@@ -156,7 +175,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnDropBlock()
+    private void OnDropBlock(InputAction.CallbackContext _)
     {
         if (_isGrounded || _shouldSettle)
         {
@@ -294,7 +313,7 @@ public class PlayerController : MonoBehaviour
 
     private void PrepareToSettle()
     {
-        Debug.Log($"{gameObject} Scheduled to settle! @{transform.parent}");
+        //Debug.Log($"{gameObject} Scheduled to settle! @{transform.parent}");
         _isGrounded = true;
         StartCoroutine(WaitUntilSettle());
         _shouldSettle = true;
@@ -332,33 +351,42 @@ public class PlayerController : MonoBehaviour
 
     private void OnEnable()
     {
-        ChangeInputControllerSubscription(true);
+        ChangeControllsEventSubscription(true);
+        // Since playingFieldState can not be acquired in Awake it will be null on first enable
         if (_playingFieldState != null)
         {
-            _playingFieldState.OnFocusChangedEvent += ChangeInputControllerSubscription;
+            _playingFieldState.OnFocusChangedEvent += ChangeControllsEventSubscription;
         }
     }
 
     private void OnDisable()
     {
-        ChangeInputControllerSubscription(false);
-        _playingFieldState.OnFocusChangedEvent -= ChangeInputControllerSubscription;
+        ChangeControllsEventSubscription(false);
+        _playingFieldState.OnFocusChangedEvent -= ChangeControllsEventSubscription;
     }
 
-    private void ChangeInputControllerSubscription(bool shouldListen)
+    private void ChangeControllsEventSubscription(bool shouldListen)
     {
+        //Debug.Log($"Changing focus @{transform.parent} to {shouldListen}");
         if (shouldListen)
         {
-            InputController.OnMoveEvent += OnMove;
-            InputController.OnRotateEvent += OnRotate;
-            InputController.OnDropDownEvent += OnDropBlock;
+            _moveAction.started += OnMove;
+            _moveAction.performed += OnMove;
+            _moveAction.canceled += OnMove;
+            _rotateAction.performed += OnRotate;
+            // TODO: test if started is enough and right
+            _dropBlockAction.started += OnDropBlock;
         }
         else
         {
-            InputController.OnMoveEvent -= OnMove;
-            InputController.OnRotateEvent -= OnRotate;
-            InputController.OnDropDownEvent -= OnDropBlock;
+            _moveAction.started -= OnMove;
+            _moveAction.performed -= OnMove;
+            _moveAction.canceled -= OnMove;
+            _rotateAction.performed -= OnRotate;
+            // TODO: test if started is enough and right
+            _dropBlockAction.started -= OnDropBlock;
         }
+        _playerInput.enabled = shouldListen;
     }
 
     // Old Debug

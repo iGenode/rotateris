@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class GameState : MonoBehaviour
 {
@@ -15,10 +16,13 @@ public class GameState : MonoBehaviour
     private GameObject _playingFieldPrefab;
     [SerializeField]
     private Camera _mainCamera;
+    [SerializeField]
+    private InputAction _action;
     private List<PlayingFieldState> _playingFieldStates = new();
     private int _focusedFieldIndex = 0;
     private int _angleStep;
 
+    // TODO: what's this?
     //temp
     private Vector3 _defaultSpawnPos;
 
@@ -41,16 +45,14 @@ public class GameState : MonoBehaviour
         }
     }
 
-    private void OnRotateField(float direction)
+    private void OnRotateField(InputAction.CallbackContext context)
     {
+        var direction = context.ReadValue<float>();
         // Rotating the camera and changing current focused playing field
-        if (direction != 0)
-        {
-            _mainCamera.transform.RotateAround(Vector3.zero, Vector3.up, _angleStep * -direction);
-            _playingFieldStates[_focusedFieldIndex].SetFieldFocus(false);
-            ChangeIndex((int)-direction);
-            _playingFieldStates[_focusedFieldIndex].SetFieldFocus(true);
-        }
+        _mainCamera.transform.RotateAround(Vector3.zero, Vector3.up, _angleStep * -direction);
+        _playingFieldStates[_focusedFieldIndex].SetFieldFocus(false);
+        ChangeIndex((int)-direction);
+        _playingFieldStates[_focusedFieldIndex].SetFieldFocus(true);
     }
 
     private void ChangeIndex(int direction)
@@ -70,11 +72,13 @@ public class GameState : MonoBehaviour
 
     private void OnEnable()
     {
-        InputController.OnRotateFieldEvent += OnRotateField;
+        _action.Enable();
+        _action.performed += OnRotateField;
     }
 
     private void OnDisable()
     {
-        InputController.OnRotateFieldEvent -= OnRotateField;
+        _action.Disable();
+        _action.performed -= OnRotateField;
     }
 }
