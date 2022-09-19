@@ -289,7 +289,7 @@ MonoBehaviour:
   Size: 13
   LinesCleared: 0
   Score: 0
-  Level: 0
+  Level: 1
   Speed: 0
   IsFocused: 0
   _difficultyLevels: {fileID: 11400000, guid: d5e78c4e9b59f464fb99e79bf2880928, type: 2}

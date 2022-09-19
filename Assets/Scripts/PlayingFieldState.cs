@@ -5,6 +5,9 @@ public class PlayingFieldState : MonoBehaviour
     public delegate void OnFocusChanged(bool isFocused);
     public event OnFocusChanged OnFocusChangedEvent;
 
+    public delegate void OnScoreChanged(int amount);
+    public event OnScoreChanged OnScoreChangedEvent;
+
     private Vector3 _rotationAngles;
 
     public Vector3 GetRotationAngles()
@@ -20,20 +23,12 @@ public class PlayingFieldState : MonoBehaviour
     public int Size = 13;
     public int LinesCleared = 0;
     public int Score = 0;
-    public int Level = 0;
+    public int Level = 1;
     public float Speed;
     public bool IsFocused;
 
     [SerializeField]
     private ConstantListOfFloats _difficultyLevels;
-
-    void Update()
-    {
-        if (LinesCleared >= 10 * Level + 10)
-        {
-            SetSpeed(++Level);
-        }
-    }
 
     public void SetFieldFocus(bool isFocused)
     {
@@ -51,9 +46,40 @@ public class PlayingFieldState : MonoBehaviour
         }
     }
 
-    public void IncreaseLinesCleared()
+    // TODO: more scoring https://tetris.wiki/Scoring
+    public void IncreaseScore(int amount)
     {
-        LinesCleared++;
+        Score += amount * Level;
+        OnScoreChangedEvent?.Invoke(amount * Level);
+    }
+
+    public void IncreaseLinesCleared(int count)
+    {
+        LinesCleared += count;
+        switch (count)
+        {
+            case 1:
+                Debug.Log("Increasing score by 100");
+                IncreaseScore(100); 
+                break;
+            case 2:
+                Debug.Log("Increasing score by 300");
+                IncreaseScore(300);
+                break;
+            case 3:
+                Debug.Log("Increasing score by 500");
+                IncreaseScore(500);
+                break;
+            case 4:
+                Debug.Log("Increasing score by 800");
+                IncreaseScore(800);
+                break; 
+        }
+
+        if (LinesCleared >= 10 * Level + 10)
+        {
+            SetSpeed(++Level);
+        }
     }
 
     private void SetSpeed(int level)

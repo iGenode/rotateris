@@ -22,8 +22,6 @@ public class RowFilledTrigger : MonoBehaviour
 
     private void DestroyRow(Collider[] colliders)
     {
-        _playingFieldState.IncreaseLinesCleared();
-
         foreach (Collider collider in colliders)
         {
             Destroy(collider.gameObject);
@@ -32,6 +30,7 @@ public class RowFilledTrigger : MonoBehaviour
 
     private void CheckTriggerForObjects(List<Transform> settledObjects)
     {
+        var clearedRowsCount = 0;
         foreach (Transform child in settledObjects)
         {
             if (_checkedYs.Contains(Utils.RoundFloatToTwoDecimals(child.position.y))) // If this row was checked already, skip it
@@ -48,6 +47,7 @@ public class RowFilledTrigger : MonoBehaviour
             if (row.Length == _playingFieldState.Size) // If row is filled, destroy it and save current y to move
             {
                 //Debug.Log($"Row filled, destroying!");
+                clearedRowsCount++;
                 DestroyRow(row);
                 _ysToMove.Add(Utils.RoundFloatToTwoDecimals(child.position.y));
             }
@@ -68,6 +68,10 @@ public class RowFilledTrigger : MonoBehaviour
                     collider.transform.Translate(Vector3.down, Space.World);
                 }
             }
+        }
+        if (clearedRowsCount > 0)
+        {
+            _playingFieldState.IncreaseLinesCleared(clearedRowsCount);
         }
 
         _checkedYs.Clear();

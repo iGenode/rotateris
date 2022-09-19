@@ -8,7 +8,7 @@ public class GameState : MonoBehaviour
     public const int MoveUnit = 1;
     private const float _offsetFromWorldCenter = 20.0f;
 
-    // fixme: set this at the start/pass from menu scene
+    public int TotalScore = 0;
     public int PlayingFieldCount = 1;
     public bool IsGameOver = false;
 
@@ -39,6 +39,7 @@ public class GameState : MonoBehaviour
             playingField.name = $"Playing field {i}";
             playingField.transform.Rotate(angles);
             var state = playingField.GetComponent<PlayingFieldState>();
+            state.OnScoreChangedEvent += IncreaseTotalScore;
             state.SetFieldFocus(i == _focusedFieldIndex);
             state.SetRotationAngles(angles);
             _playingFieldStates.Add(state);
@@ -53,6 +54,11 @@ public class GameState : MonoBehaviour
         _playingFieldStates[_focusedFieldIndex].SetFieldFocus(false);
         ChangeIndex((int)-direction);
         _playingFieldStates[_focusedFieldIndex].SetFieldFocus(true);
+    }
+
+    private void IncreaseTotalScore(int amount)
+    {
+        TotalScore += amount;
     }
 
     private void ChangeIndex(int direction)
@@ -74,11 +80,19 @@ public class GameState : MonoBehaviour
     {
         _action.Enable();
         _action.performed += OnRotateField;
+        foreach (var state in _playingFieldStates)
+        {
+            state.OnScoreChangedEvent += IncreaseTotalScore;
+        }
     }
 
     private void OnDisable()
     {
         _action.Disable();
         _action.performed -= OnRotateField;
+        foreach (var state in _playingFieldStates)
+        {
+            state.OnScoreChangedEvent -= IncreaseTotalScore;
+        }
     }
 }
