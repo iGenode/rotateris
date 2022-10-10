@@ -316,6 +316,7 @@ MonoBehaviour:
   Level: 0
   Speed: 0
   IsFocused: 0
+  CameraPosition: {fileID: 0}
   _difficultyLevels: {fileID: 11400000, guid: d5e78c4e9b59f464fb99e79bf2880928, type: 2}
 --- !u!1 &402011696
 GameObject:
@@ -735,6 +736,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1407e9504142274ebeb4ac74fec260b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TotalScore: 0
   PlayingFieldCount: 5
   IsGameOver: 0
   _playingFieldPrefab: {fileID: 3323158087007250395, guid: 28b962df53ef60548972ef9535b67446, type: 3}
