@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -93,14 +92,6 @@ public class GameState : MonoBehaviour
         spline.EditType = SplineType.CatmullRom;
         _splineLength = spline.GetLength();
 
-        //GameObject cameraFollowController = new()
-        //{
-        //    name = "Camera Follow Controller"
-        //};
-        //var follow = cameraFollowController.AddComponent<FollowCameraSpline>();
-        //follow.Camera = _mainCamera.transform;
-        //follow.SplineContainer = _cameraSplineContainer;
-
         GameObject anchor = new()
         {
             name = "Look Anchor",
@@ -116,68 +107,20 @@ public class GameState : MonoBehaviour
         _playingFieldStates[_focusedFieldIndex].SetFieldFocus(false);
         ChangeIndex((int)-direction);
         // Rotating the camera and changing current focused playing field
-        // If already rotating - stop current rotation and start a new one
+        // If already rotating - stop current rotation before starting a new one
         if (_isRotating)
         {
             //Debug.Log("Stopped previous rotation");
             StopCoroutine(_rotationCoroutine);
-
-            // If rotation was interrupted - calculate cameras position from _posAfterRotation instead of its transform
-            //_posAfterRotation = Utils.RotatePointAroundPivot(
-            //    _posAfterRotation,
-            //    Vector3.zero,
-            //    new Vector3(
-            //        0,
-            //        Quaternion.Angle(
-            //            _mainCamera.transform.rotation,
-            //            _playingFieldStates[_focusedFieldIndex].transform.rotation
-            //        ) * -direction,
-            //        0
-            //    )
-            //);
-            _isRotating = false;
         }
-        //else
-        //{
-        //    // Calculate cameras position after rotation and store it
-        //    _posAfterRotation = Utils.RotatePointAroundPivot(
-        //        _mainCamera.transform.position,
-        //        Vector3.zero,
-        //        new Vector3(
-        //            0,
-        //            Quaternion.Angle(
-        //                _mainCamera.transform.rotation,
-        //                _playingFieldStates[_focusedFieldIndex].transform.rotation
-        //            ) * -direction,
-        //            0
-        //        )
-        //    );
-        //}
 
-        //Debug.Log($"Index is {_focusedFieldIndex}");
-        //Debug.Log($"Passed index is {mod(_focusedFieldIndex - 1, PlayingFieldCount)}");
-        _rotationCoroutine = StartCoroutine(RotateOnSpline(_cameraSplineContainer.Spline.GetCurve(mod(_focusedFieldIndex - 1, PlayingFieldCount)), (int)-direction, 30f));
+        _rotationCoroutine = StartCoroutine(
+            RotateOnSpline(
+                _cameraSplineContainer.Spline.GetCurve(mod(_focusedFieldIndex - 1, PlayingFieldCount)),
+                (int)-direction
+            )
+        );
 
-        //_rotationCoroutine = StartCoroutine(
-        //    RotateTo(
-        //        _posAfterRotation,
-        //        _playingFieldStates[_focusedFieldIndex].transform.rotation * Quaternion.Euler(10, 0, 0),
-        //        5f,
-        //        Quaternion.Angle(
-        //            _mainCamera.transform.rotation,
-        //            _playingFieldStates[_focusedFieldIndex].transform.rotation
-        //        ) * -direction
-        //    )
-        //);
-        
-        // This works!
-        //_rotationCoroutine = StartCoroutine(
-        //    RotateTo(
-        //        _playingFieldStates[_focusedFieldIndex].CameraPosition.position,
-        //        _playingFieldStates[_focusedFieldIndex].CameraPosition.rotation,
-        //        5f
-        //    )
-        //);
         _playingFieldStates[_focusedFieldIndex].SetFieldFocus(true);
     }
 
@@ -201,51 +144,22 @@ public class GameState : MonoBehaviour
         _focusedFieldIndex += direction;
     }
 
-    //IEnumerator RotateTo(Vector3 endPosition, Quaternion endRotation, float inTime)
-    //{
-    //    _isRotating = true;
-    //    for (var t = 0f; t <= 1; t += Time.deltaTime / inTime)
-    //    {
-    //        _mainCamera.transform.SetPositionAndRotation(
-    //            Vector3.Slerp(_mainCamera.transform.position, endPosition, t),
-    //            Quaternion.Slerp(_mainCamera.transform.rotation, endRotation, t)
-    //        );
-
-    //        // TODO: is this optimal?
-    //        if (Quaternion.Angle(_mainCamera.transform.rotation, endRotation) <= 0.1f &&
-    //            Vector3.Distance(_mainCamera.transform.position, endPosition) <= 0.1f)
-    //        {
-    //            _mainCamera.transform.SetPositionAndRotation(endPosition, endRotation);
-    //            _isRotating = false;
-    //            yield break;
-    //        }
-
-    //        yield return null;
-    //    }
-    //    _isRotating = false;
-    //}
-
-    IEnumerator RotateOnSpline(BezierCurve curve, int direction, float inTime)
+    IEnumerator RotateOnSpline(BezierCurve curve, int direction)
     {
         _isRotating = true;
-        //Debug.Log($"Direction is {direction}");
-        //while (true)
-        for (var t = 0f; t <= 1; t += Time.deltaTime / inTime)
+        for (var t = 0f; t <= 1; t += Time.deltaTime / 15f)
         {
-            //Debug.Log($"Modifying offset by {(_currentOffset + 5f * direction * Time.deltaTime / _splineLength) % 1f}");
-            _currentOffset = (_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / PlayingFieldCount)) % 1f;
+            _currentOffset = (_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * 2))) % 1f;
 
             var posOnSplineLocal = SplineUtility.EvaluatePosition(
                 _cameraSplineContainer.Spline,
                 _currentOffset > 0 ? _currentOffset : 1 + _currentOffset);
-            //Debug.Log($"Pos on spline TransformPoint {posOnSplineLocal}");
-            //Debug.Log($"Pos with TransformPoint {_cameraSplineContainer.transform.TransformPoint(posOnSplineLocal)}");
             _mainCamera.transform.position = _cameraSplineContainer.transform.TransformPoint(posOnSplineLocal);
 
-            //Debug.Log($"Current distance is {Vector3.Distance(_mainCamera.transform.position, curve.P3)}");
+            // Not fail safe, can skip the time when camera arives and will keep going
             if (Vector3.Distance(_mainCamera.transform.position, curve.P3) <= 0.1f)
             {
-                Debug.Log("Arrived at the destination");
+                //Debug.Log($"Arrived in {t * 15f} seconds");
                 _isRotating = false;
                 _mainCamera.transform.position = curve.P3;
                 yield break;
@@ -253,7 +167,9 @@ public class GameState : MonoBehaviour
 
             yield return null;
         }
-        Debug.Log("Time passed");
+
+        //Debug.Log("Time passed");
+        _mainCamera.transform.position = curve.P3;
         _isRotating = false;
     }
 

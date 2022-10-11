@@ -26,6 +26,7 @@ public class PlayingFieldState : MonoBehaviour
     public int Level = 1;
     public float Speed;
     public bool IsFocused;
+    public Transform CameraPosition;
 
     [SerializeField]
     private ConstantListOfFloats _difficultyLevels;
