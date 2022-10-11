@@ -64,67 +64,70 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (_timeToMove >= GameState.HorizontalMoveDelay)
+        if (!GameState.IsGameOver)
         {
-            // Since actual movement happens on different frames (only after HorizontalMoveDelay)
-            // - check if still safe to move, and if not - return MovePoint to player's transform.position
-            if (IsSafeToMove((MovePoint.position - transform.position).normalized))
+            if (_timeToMove >= GameState.HorizontalMoveDelay)
             {
-                transform.position = MovePoint.position;
-            }
-            else
-            {
-                MovePoint.position = transform.position;
-            }
-            _timeToMove = 0;
-        }
-        if (Vector3.Distance(transform.position, MovePoint.position) <= .05f)
-        {
-            _timeToMove = 0f;
-            if (_move.x != 0)
-            {
-                var moveDirection = _move.x > 0 ? transform.parent.right : -transform.parent.right;
-                if (IsSafeToMove(moveDirection))
+                // Since actual movement happens on different frames (only after HorizontalMoveDelay)
+                // - check if still safe to move, and if not - return MovePoint to player's transform.position
+                if (IsSafeToMove((MovePoint.position - transform.position).normalized))
                 {
-                    // Move MovePoint for the player to follow after HorizontalMoveDelay
-                    MovePoint.position += moveDirection;
+                    transform.position = MovePoint.position;
                 }
-                //else
-                //{
-                //    Debug.Log("CANT MOVE");
-                //}
+                else
+                {
+                    MovePoint.position = transform.position;
+                }
+                _timeToMove = 0;
             }
-        }
+            if (Vector3.Distance(transform.position, MovePoint.position) <= .05f)
+            {
+                _timeToMove = 0f;
+                if (_move.x != 0)
+                {
+                    var moveDirection = _move.x > 0 ? transform.parent.right : -transform.parent.right;
+                    if (IsSafeToMove(moveDirection))
+                    {
+                        // Move MovePoint for the player to follow after HorizontalMoveDelay
+                        MovePoint.position += moveDirection;
+                    }
+                    //else
+                    //{
+                    //    Debug.Log("CANT MOVE");
+                    //}
+                }
+            }
 
-        _timeToMove += Time.deltaTime;
+            _timeToMove += Time.deltaTime;
 
-        if (_shouldMoveDown)
-        {
-            if (IsSafeToMove(Vector3.down))
+            if (_shouldMoveDown)
             {
-                MoveFigure(Vector3.down);
-                if (!_isDroppingDown)
+                if (IsSafeToMove(Vector3.down))
                 {
-                    StartCoroutine(WaitToMove());
-                }
+                    MoveFigure(Vector3.down);
+                    if (!_isDroppingDown)
+                    {
+                        StartCoroutine(WaitToMove());
+                    }
 
-                // If object was able to move down again after being grounded - stop destruction
-                if (_isGrounded)
-                {
-                    Debug.Log("Stop destruction, can move again");
-                    _shouldSettle = false;
-                    _isGrounded = false;
+                    // If object was able to move down again after being grounded - stop destruction
+                    if (_isGrounded)
+                    {
+                        Debug.Log("Stop destruction, can move again");
+                        _shouldSettle = false;
+                        _isGrounded = false;
+                    }
                 }
-            }
-            else if (!_shouldSettle) // If not already waiting to settle
-            {
-                if (_isDroppingDown) // If dropping down settle instantly
+                else if (!_shouldSettle) // If not already waiting to settle
                 {
-                    Settle();
-                }
-                else // Else prepare to settle
-                {
-                    PrepareToSettle();
+                    if (_isDroppingDown) // If dropping down settle instantly
+                    {
+                        Settle();
+                    }
+                    else // Else prepare to settle
+                    {
+                        PrepareToSettle();
+                    }
                 }
             }
         }
@@ -160,7 +163,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnMove(InputAction.CallbackContext context)
     {
-        Debug.Log("Got move vector");
+        //Debug.Log("Got move vector");
         _move = context.ReadValue<Vector2>();
     }
 

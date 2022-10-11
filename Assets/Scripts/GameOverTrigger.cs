@@ -22,14 +22,9 @@ public class GameOverTrigger : MonoBehaviour
             transform.rotation,
             _obstacleLayerMask).Length != 0)
         {
-            GameOver();
+            Debug.Log("GAME OVER");
+            GameState.GameOver();
         }
-    }
-
-    // TODO: move GameOver method to GameState and add logic to stop the game
-    public void GameOver()
-    {
-        Debug.Log("GAME OVER");
     }
 
     private void OnEnable()

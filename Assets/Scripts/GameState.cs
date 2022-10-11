@@ -12,9 +12,9 @@ public class GameState : MonoBehaviour
     public const int MoveUnit = 1;
     private const float _offsetFromWorldCenter = 20.0f;
 
+    public static bool IsGameOver = false;
     public int TotalScore = 0;
     public int PlayingFieldCount = 1;
-    public bool IsGameOver = false;
 
     [SerializeField]
     private GameObject _playingFieldPrefab;
@@ -101,6 +101,12 @@ public class GameState : MonoBehaviour
         lookAt.Anchor = anchor.transform;
     }
 
+    public static void GameOver()
+    {
+        IsGameOver = true;
+        Time.timeScale = 0;
+    }
+
     private void OnRotateField(InputAction.CallbackContext context)
     {
         var direction = context.ReadValue<float>();
@@ -114,10 +120,12 @@ public class GameState : MonoBehaviour
             StopCoroutine(_rotationCoroutine);
         }
 
+        var endPoint = _cameraSplineContainer.Spline.GetCurve(mod(_focusedFieldIndex - 1, PlayingFieldCount)).P3;
         _rotationCoroutine = StartCoroutine(
             RotateOnSpline(
-                _cameraSplineContainer.Spline.GetCurve(mod(_focusedFieldIndex - 1, PlayingFieldCount)),
-                (int)-direction
+                new Vector3(endPoint.x, endPoint.y, endPoint.z),
+                (int)-direction,
+                _isRotating
             )
         );
 
@@ -144,32 +152,23 @@ public class GameState : MonoBehaviour
         _focusedFieldIndex += direction;
     }
 
-    IEnumerator RotateOnSpline(BezierCurve curve, int direction)
+    IEnumerator RotateOnSpline(Vector3 destination, int direction, bool shouldHurry)
     {
         _isRotating = true;
-        for (var t = 0f; t <= 1; t += Time.deltaTime / 15f)
+        var multiplier = shouldHurry ? 6 : 4;
+        while (Vector3.Distance(_mainCamera.transform.position, destination) >= 0.3f)
         {
-            _currentOffset = (_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * 2))) % 1f;
+            _currentOffset = (_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * multiplier))) % 1f;
 
             var posOnSplineLocal = SplineUtility.EvaluatePosition(
                 _cameraSplineContainer.Spline,
                 _currentOffset > 0 ? _currentOffset : 1 + _currentOffset);
             _mainCamera.transform.position = _cameraSplineContainer.transform.TransformPoint(posOnSplineLocal);
 
-            // Not fail safe, can skip the time when camera arives and will keep going
-            if (Vector3.Distance(_mainCamera.transform.position, curve.P3) <= 0.1f)
-            {
-                //Debug.Log($"Arrived in {t * 15f} seconds");
-                _isRotating = false;
-                _mainCamera.transform.position = curve.P3;
-                yield break;
-            }
-
-            yield return null;
+            yield return new WaitForEndOfFrame();
         }
 
-        //Debug.Log("Time passed");
-        _mainCamera.transform.position = curve.P3;
+        _mainCamera.transform.position = destination;
         _isRotating = false;
     }
 
