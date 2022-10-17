@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Splines;
+using UnityEngine.UI;
 
 public class GameState : MonoBehaviour
 {
@@ -22,6 +24,10 @@ public class GameState : MonoBehaviour
     private Camera _mainCamera;
     [SerializeField]
     private InputAction _action;
+    [SerializeField]
+    private TextMeshProUGUI _totalScoreText;
+    [SerializeField]
+    private TextMeshProUGUI _localScoreText;
     private List<PlayingFieldState> _playingFieldStates = new();
     private int _focusedFieldIndex = 0;
     private int _angleStep;
@@ -60,6 +66,7 @@ public class GameState : MonoBehaviour
             playingField.transform.Rotate(angles);
 
             var state = playingField.GetComponent<PlayingFieldState>();
+            state.SetLocalScoreText(_localScoreText);
             state.OnScoreChangedEvent += IncreaseTotalScore;
             state.SetFieldFocus(i == _focusedFieldIndex);
             state.SetRotationAngles(angles);
@@ -99,6 +106,8 @@ public class GameState : MonoBehaviour
         anchor.transform.position = new Vector3(0, 7, 0);
         var lookAt = _mainCamera.AddComponent<CameraLookAt>();
         lookAt.Anchor = anchor.transform;
+
+        _totalScoreText.text = "Total Score: 0";
     }
 
     public static void GameOver()
@@ -135,6 +144,7 @@ public class GameState : MonoBehaviour
     private void IncreaseTotalScore(int amount)
     {
         TotalScore += amount;
+        _totalScoreText.text = $"Total Score: {TotalScore}";
     }
 
     private void ChangeIndex(int direction)
@@ -156,7 +166,7 @@ public class GameState : MonoBehaviour
     {
         _isRotating = true;
         var multiplier = shouldHurry ? 6 : 4;
-        while (Vector3.Distance(_mainCamera.transform.position, destination) >= 0.3f)
+        while (Vector3.Distance(_mainCamera.transform.position, destination) >= 1f)
         {
             _currentOffset = (_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * multiplier))) % 1f;
 

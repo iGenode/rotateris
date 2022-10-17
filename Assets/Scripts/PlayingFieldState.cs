@@ -1,4 +1,6 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayingFieldState : MonoBehaviour
 {
@@ -30,6 +32,7 @@ public class PlayingFieldState : MonoBehaviour
 
     [SerializeField]
     private ConstantListOfFloats _difficultyLevels;
+    private TextMeshProUGUI _localScoreText;
 
     public void SetFieldFocus(bool isFocused)
     {
@@ -38,6 +41,7 @@ public class PlayingFieldState : MonoBehaviour
             IsFocused = true;
             SetSpeed(Level);
             OnFocusChangedEvent?.Invoke(true);
+            UpdateScoreText();
         } 
         else
         {
@@ -52,7 +56,13 @@ public class PlayingFieldState : MonoBehaviour
     {
         Score += amount * Level;
         OnScoreChangedEvent?.Invoke(amount * Level);
+        if (IsFocused)
+        {
+            UpdateScoreText();
+        }
     }
+
+    public void UpdateScoreText() => _localScoreText.text = $"Score: {Score}";
 
     public void IncreaseLinesCleared(int count)
     {
@@ -60,19 +70,19 @@ public class PlayingFieldState : MonoBehaviour
         switch (count)
         {
             case 1:
-                Debug.Log("Increasing score by 100");
+                //Debug.Log("Increasing score by 100");
                 IncreaseScore(100); 
                 break;
             case 2:
-                Debug.Log("Increasing score by 300");
+                //Debug.Log("Increasing score by 300");
                 IncreaseScore(300);
                 break;
             case 3:
-                Debug.Log("Increasing score by 500");
+                //Debug.Log("Increasing score by 500");
                 IncreaseScore(500);
                 break;
             case 4:
-                Debug.Log("Increasing score by 800");
+                //Debug.Log("Increasing score by 800");
                 IncreaseScore(800);
                 break; 
         }
@@ -82,6 +92,8 @@ public class PlayingFieldState : MonoBehaviour
             SetSpeed(++Level);
         }
     }
+
+    public void SetLocalScoreText(TextMeshProUGUI tmp) => _localScoreText = tmp;
 
     private void SetSpeed(int level)
     {
