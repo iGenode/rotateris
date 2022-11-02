@@ -8,39 +8,42 @@ public class SpawnManager : MonoBehaviour
     public delegate void SettledWithDataAction(List<Transform> settledChildren);
     public event SettledWithDataAction OnSettledWithData;
 
-    public GameObject[] PlayerPrefabs;
+    [SerializeField]
+    private ConstantListOfGameObjects PlayerPrefabs;
     [SerializeField]
     private Transform _spawnPoint;
     private List<Transform> _currentChildren = new List<Transform>();
     private PlayerController _currentPlayerController;
     private int _previousIndex = -1;
+    private bool _canHold = true;
 
     void Start()
     {
         InstantiateNewPlayer();
     }
 
-    void Update()
+    private void SettlePlayer()
     {
-        if (_currentPlayerController == null)
-        {
-            OnSettled?.Invoke();
-            OnSettledWithData?.Invoke(_currentChildren);
-            InstantiateNewPlayer();
-        }
+        OnSettled?.Invoke();
+        OnSettledWithData?.Invoke(_currentChildren);
+        InstantiateNewPlayer();
     }
 
-    private void InstantiateNewPlayer()
+    public PlayerController GetCurrentPlayer() => _currentPlayerController;
+
+    public void InstantiateNewPlayer()
     {
+        _canHold = true;
         _currentChildren.Clear();
-        var index = Random.Range(0, PlayerPrefabs.Length);
+        var index = Random.Range(0, PlayerPrefabs.List.Count);
         if (index == _previousIndex) // Reroll index if it's equal to previous to lessen the chance of the same pieces
         {
-            index = Random.Range(0, PlayerPrefabs.Length);
+            index = Random.Range(0, PlayerPrefabs.List.Count);
         }
-        var currentPlayer = Instantiate(PlayerPrefabs[index], _spawnPoint.position, transform.parent.rotation);
+        var currentPlayer = Instantiate(PlayerPrefabs.List[index], _spawnPoint.position, transform.parent.rotation);
         currentPlayer.transform.parent = transform.parent;
         _currentPlayerController = currentPlayer.GetComponent<PlayerController>();
+        _currentPlayerController.OnSettlePlayer += SettlePlayer;
         foreach (Transform child in currentPlayer.transform)
         {
             if (!child.gameObject.CompareTag("MovePoint"))
@@ -49,5 +52,38 @@ public class SpawnManager : MonoBehaviour
             }
         }
         _previousIndex = index;
+    }
+
+    public void InstantiateNewPlayerWithName(string name)
+    {
+        _canHold = true;
+        _currentChildren.Clear();
+        var prefab = PlayerPrefabs.List.Find(shape => name.Contains(shape.name));
+        if (prefab == null)
+        {
+            Debug.Log("Name not found!");
+            return;
+        }
+        var currentPlayer = Instantiate(prefab, _spawnPoint.position, transform.parent.rotation);
+        currentPlayer.transform.parent = transform.parent;
+        _currentPlayerController = currentPlayer.GetComponent<PlayerController>();
+        _currentPlayerController.OnSettlePlayer += SettlePlayer;
+        foreach (Transform child in currentPlayer.transform)
+        {
+            if (!child.gameObject.CompareTag("MovePoint"))
+            {
+                _currentChildren.Add(child);
+            }
+        }
+    }
+
+    public bool CanHold() => _canHold;
+
+    public bool SetHoldFlag(bool canHold) => _canHold = canHold;
+
+    public void DiscardCurrentPlayerController()
+    {
+        _currentPlayerController.OnSettlePlayer -= SettlePlayer;
+        _currentPlayerController = null;
     }
 }

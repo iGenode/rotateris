@@ -2,9 +2,11 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// TODO: add object storage to store one of the shapes in
 public class PlayerController : MonoBehaviour
 {
+    public delegate void SettlePlayerAction();
+    public event SettlePlayerAction OnSettlePlayer;
+
     public Transform MovePoint;
     public LayerMask ObstacleLayerMask;
 
@@ -324,13 +326,23 @@ public class PlayerController : MonoBehaviour
 
     private void Settle()
     {
+        //Debug.Log($"Settle called for {gameObject} @{transform.parent}");
+        // Order of operations matters here
         transform.SetLayerRecursively((int)Mathf.Log(ObstacleLayerMask.value, 2));
         Destroy(gameObject.GetComponent<Rigidbody>());
         Destroy(this);
         Destroy(MovePoint.gameObject);
-
+        // Notifying listeners before destroying the gameObject
+        OnSettlePlayer?.Invoke();
+        // Detaching children and destroying the gameObject
         transform.DetachChildren();
         Destroy(gameObject);
+    }
+
+    public void CancelSettle()
+    {
+        _isGrounded = false;
+        _shouldSettle = false;
     }
 
     private int NumberOfCollisions()

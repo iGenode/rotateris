@@ -15,6 +15,7 @@ public class GameState : MonoBehaviour
     private const float _offsetFromWorldCenter = 20.0f;
 
     public static bool IsGameOver = false;
+    public static int FocusedFieldIndex = 0;
     public int TotalScore = 0;
     public int PlayingFieldCount = 1;
 
@@ -28,11 +29,14 @@ public class GameState : MonoBehaviour
     private TextMeshProUGUI _totalScoreText;
     [SerializeField]
     private TextMeshProUGUI _localScoreText;
-    private List<PlayingFieldState> _playingFieldStates = new();
-    private int _focusedFieldIndex = 0;
+
+    private static readonly List<SpawnManager> _spawnManagers = new();
+
+    private readonly List<PlayingFieldState> _playingFieldStates = new();
     private int _angleStep;
     private Coroutine _rotationCoroutine;
     private bool _isRotating;
+    private HolderController _holderController;
 
     // Spline variables
     private SplineContainer _cameraSplineContainer;
@@ -47,6 +51,8 @@ public class GameState : MonoBehaviour
     {
         _defaultSpawnPos = new(0, 0, -_offsetFromWorldCenter);
         _angleStep = 360 / PlayingFieldCount;
+
+        _holderController = GetComponent<HolderController>();
 
         GameObject splineObject = new()
         {
@@ -68,7 +74,7 @@ public class GameState : MonoBehaviour
             var state = playingField.GetComponent<PlayingFieldState>();
             state.SetLocalScoreText(_localScoreText);
             state.OnScoreChangedEvent += IncreaseTotalScore;
-            state.SetFieldFocus(i == _focusedFieldIndex);
+            state.SetFieldFocus(i == FocusedFieldIndex);
             state.SetRotationAngles(angles);
             _playingFieldStates.Add(state);
 
@@ -78,6 +84,9 @@ public class GameState : MonoBehaviour
                     state.CameraPosition.position.y,
                     state.CameraPosition.position.z
                 )
+            );
+            _spawnManagers.Add(
+                playingField.GetComponentInChildren<SpawnManager>()
             );
         }
 
@@ -116,10 +125,13 @@ public class GameState : MonoBehaviour
         Time.timeScale = 0;
     }
 
+    public static SpawnManager GetFocusedSpawnManager() => _spawnManagers[FocusedFieldIndex];
+
     private void OnRotateField(InputAction.CallbackContext context)
     {
         var direction = context.ReadValue<float>();
-        _playingFieldStates[_focusedFieldIndex].SetFieldFocus(false);
+        _playingFieldStates[FocusedFieldIndex].SetFieldFocus(false);
+
         ChangeIndex((int)-direction);
         // Rotating the camera and changing current focused playing field
         // If already rotating - stop current rotation before starting a new one
@@ -129,7 +141,7 @@ public class GameState : MonoBehaviour
             StopCoroutine(_rotationCoroutine);
         }
 
-        var endPoint = _cameraSplineContainer.Spline.GetCurve(mod(_focusedFieldIndex - 1, PlayingFieldCount)).P3;
+        var endPoint = _cameraSplineContainer.Spline.GetCurve(mod(FocusedFieldIndex - 1, PlayingFieldCount)).P3;
         _rotationCoroutine = StartCoroutine(
             RotateOnSpline(
                 new Vector3(endPoint.x, endPoint.y, endPoint.z),
@@ -138,7 +150,7 @@ public class GameState : MonoBehaviour
             )
         );
 
-        _playingFieldStates[_focusedFieldIndex].SetFieldFocus(true);
+        _playingFieldStates[FocusedFieldIndex].SetFieldFocus(true);
     }
 
     private void IncreaseTotalScore(int amount)
@@ -149,17 +161,17 @@ public class GameState : MonoBehaviour
 
     private void ChangeIndex(int direction)
     {
-        if (_focusedFieldIndex == 0 && direction < 0)
+        if (FocusedFieldIndex == 0 && direction < 0)
         {
-            _focusedFieldIndex = PlayingFieldCount - 1;
+            FocusedFieldIndex = PlayingFieldCount - 1;
             return;
         }
-        if (_focusedFieldIndex == PlayingFieldCount - 1 && direction > 0)
+        if (FocusedFieldIndex == PlayingFieldCount - 1 && direction > 0)
         {
-            _focusedFieldIndex = 0;
+            FocusedFieldIndex = 0;
             return;
         }
-        _focusedFieldIndex += direction;
+        FocusedFieldIndex += direction;
     }
 
     IEnumerator RotateOnSpline(Vector3 destination, int direction, bool shouldHurry)

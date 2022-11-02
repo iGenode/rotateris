@@ -74,10 +74,6 @@ MonoBehaviour:
     m_ActionName: Player/Rotate[/Keyboard/q,/Keyboard/e,/XInputControllerWindows/leftShoulder,/XInputControllerWindows/rightShoulder]
   - m_PersistentCalls:
       m_Calls: []
-    m_ActionId: af1f825e-1ab1-4dfb-adf6-15cb7abdf5eb
-    m_ActionName: Player/RotateField[/Keyboard/tab,/Keyboard/r,/XInputControllerWindows/dpad/left,/XInputControllerWindows/dpad/right]
-  - m_PersistentCalls:
-      m_Calls: []
     m_ActionId: 9e440674-6791-44b9-9aa5-952182a1e99e
     m_ActionName: Player/DropBlock[/Keyboard/space,/XInputControllerWindows/buttonSouth]
   - m_PersistentCalls:
