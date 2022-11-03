@@ -332,11 +332,11 @@ public class PlayerController : MonoBehaviour
         Destroy(gameObject.GetComponent<Rigidbody>());
         Destroy(this);
         Destroy(MovePoint.gameObject);
-        // Notifying listeners before destroying the gameObject
-        OnSettlePlayer?.Invoke();
         // Detaching children and destroying the gameObject
         transform.DetachChildren();
         Destroy(gameObject);
+        // Notifying listeners
+        OnSettlePlayer?.Invoke();
     }
 
     public void CancelSettle()
