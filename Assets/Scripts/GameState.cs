@@ -29,6 +29,8 @@ public class GameState : MonoBehaviour
     private TextMeshProUGUI _totalScoreText;
     [SerializeField]
     private TextMeshProUGUI _localScoreText;
+    [SerializeField]
+    private PlayingFieldSettings _settings;
 
     private static readonly List<SpawnManager> _spawnManagers = new();
 
@@ -36,7 +38,7 @@ public class GameState : MonoBehaviour
     private int _angleStep;
     private Coroutine _rotationCoroutine;
     private bool _isRotating;
-    private HolderController _holderController;
+    //private HolderController _holderController;
 
     // Spline variables
     private SplineContainer _cameraSplineContainer;
@@ -49,10 +51,13 @@ public class GameState : MonoBehaviour
 
     private void Start()
     {
+        // Setting playing field count as chosen by the player
+        PlayingFieldCount = _settings.PlayingFieldCount;
+
         _defaultSpawnPos = new(0, 0, -_offsetFromWorldCenter);
         _angleStep = 360 / PlayingFieldCount;
 
-        _holderController = GetComponent<HolderController>();
+        //_holderController = GetComponent<HolderController>();
 
         GameObject splineObject = new()
         {
@@ -72,6 +77,8 @@ public class GameState : MonoBehaviour
             playingField.transform.Rotate(angles);
 
             var state = playingField.GetComponent<PlayingFieldState>();
+            // Setting difficulty level as chosen by the player
+            state.SetDifficulty(_settings.DifficultyLevel);
             state.SetLocalScoreText(_localScoreText);
             state.OnScoreChangedEvent += IncreaseTotalScore;
             state.SetFieldFocus(i == FocusedFieldIndex);

@@ -39,7 +39,7 @@ public class PlayingFieldState : MonoBehaviour
         if (isFocused)
         {
             IsFocused = true;
-            SetSpeed(Level);
+            SetDifficulty(Level);
             OnFocusChangedEvent?.Invoke(true);
             UpdateScoreText();
         } 
@@ -89,14 +89,15 @@ public class PlayingFieldState : MonoBehaviour
 
         if (LinesCleared >= 10 * Level + 10)
         {
-            SetSpeed(++Level);
+            SetDifficulty(++Level);
         }
     }
 
     public void SetLocalScoreText(TextMeshProUGUI tmp) => _localScoreText = tmp;
 
-    private void SetSpeed(int level)
+    public void SetDifficulty(int level)
     {
+        Level = level;
         SetSpeed(GetSpeedForLevel(level));
     }
 

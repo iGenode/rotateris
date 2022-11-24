@@ -843,6 +843,7 @@ MonoBehaviour:
     m_Flags: 0
   _totalScoreText: {fileID: 321534984}
   _localScoreText: {fileID: 1256721618}
+  _settings: {fileID: 11400000, guid: c70e4d1350b2dd24d934ff93288af035, type: 2}
 --- !u!4 &991335352
 Transform:
   m_ObjectHideFlags: 0
