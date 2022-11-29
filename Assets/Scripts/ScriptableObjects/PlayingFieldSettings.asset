@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a6371acfa1080249976b041ac070d3f, type: 3}
   m_Name: PlayingFieldSettings
   m_EditorClassIdentifier: 
-  _playingFieldCount: 3
+  _playingFieldCount: 5
   _difficultyLevel: 1

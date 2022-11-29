@@ -6,7 +6,7 @@ public class HolderController : MonoBehaviour
     [SerializeField]
     private InputAction _holdAction;
     private PlayerController _heldPlayer;
-    private Vector3 _holderPreviewPosition = new(0, 100, 0);
+    private Vector3 _holderPreviewPosition = new(0, 1000, 0);
 
     private void OnHold(InputAction.CallbackContext context)
     {

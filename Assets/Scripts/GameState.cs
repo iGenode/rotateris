@@ -12,7 +12,9 @@ public class GameState : MonoBehaviour
 {
     public const float HorizontalMoveDelay = .2f;
     public const int MoveUnit = 1;
-    private const float _offsetFromWorldCenter = 20.0f;
+    //private const float _offsetFromWorldCenter = 20.0f;
+    private float _offsetFromWorldCenter = 15.0f;
+    private Vector3 _cameraOffset = new(0, 14, -20);
 
     public static bool IsGameOver = false;
     public static int FocusedFieldIndex = 0;
@@ -35,9 +37,9 @@ public class GameState : MonoBehaviour
     private static readonly List<SpawnManager> _spawnManagers = new();
 
     private readonly List<PlayingFieldState> _playingFieldStates = new();
-    private int _angleStep;
+    private float _angleStep;
     private Coroutine _rotationCoroutine;
-    private bool _isRotating;
+    private bool _isRotating = false;
     //private HolderController _holderController;
 
     // Spline variables
@@ -54,8 +56,12 @@ public class GameState : MonoBehaviour
         // Setting playing field count as chosen by the player
         PlayingFieldCount = _settings.PlayingFieldCount;
 
+        _offsetFromWorldCenter += 13 * (PlayingFieldCount / 5);
+        _cameraOffset.z -= _offsetFromWorldCenter;
+        _mainCamera.transform.position = _cameraOffset;
+
         _defaultSpawnPos = new(0, 0, -_offsetFromWorldCenter);
-        _angleStep = 360 / PlayingFieldCount;
+        _angleStep = 360f / PlayingFieldCount;
 
         //_holderController = GetComponent<HolderController>();
 
@@ -119,7 +125,7 @@ public class GameState : MonoBehaviour
         {
             name = "Look Anchor",
         };
-        anchor.transform.position = new Vector3(0, 7, 0);
+        anchor.transform.position = new Vector3(0, 7 - (PlayingFieldCount / 2.5f), 0);
         var lookAt = _mainCamera.AddComponent<CameraLookAt>();
         lookAt.Anchor = anchor.transform;
 
@@ -184,9 +190,10 @@ public class GameState : MonoBehaviour
     IEnumerator RotateOnSpline(Vector3 destination, int direction, bool shouldHurry)
     {
         _isRotating = true;
-        var multiplier = shouldHurry ? 6 : 4;
+        var multiplier = shouldHurry ? 6 : 4 - (PlayingFieldCount * 0.07f) < 1 ? 1 : 4 - (PlayingFieldCount * 0.07f);
         while (Vector3.Distance(_mainCamera.transform.position, destination) >= 1f)
         {
+            Debug.Log($"Current offset: {(_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * multiplier))) % 1f}");
             _currentOffset = (_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * multiplier))) % 1f;
 
             var posOnSplineLocal = SplineUtility.EvaluatePosition(
