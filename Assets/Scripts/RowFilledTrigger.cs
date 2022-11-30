@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,6 +8,9 @@ public class RowFilledTrigger : MonoBehaviour
     private PlayingFieldState _playingFieldState;
     [SerializeField]
     private LayerMask _obstacleLayerMask;
+    [SerializeField]
+    private GameObject _explosionPrefab;
+
     private Vector3 _triggerHalfExtents;
     private HashSet<float> _checkedYs = new HashSet<float>();
     private HashSet<float> _ysToMove = new HashSet<float>();
@@ -24,7 +28,26 @@ public class RowFilledTrigger : MonoBehaviour
     {
         foreach (Collider collider in colliders)
         {
+            // Caching position and material before destruction
+            var position = collider.transform.position;
+            var material = collider.gameObject.GetComponent<Renderer>().material;
+            // Destroying current cube
             Destroy(collider.gameObject);
+            // Instantiating an explosive cube
+            var prefab = Instantiate(_explosionPrefab, position, transform.rotation);
+            // Setting the material of each child to match to-be-destroyed cube
+            foreach (Transform child in prefab.transform)
+            {
+                child.GetComponent<Renderer>().material = material;
+            }
+            // Starting a timer to destroy the explosion
+            StartCoroutine(
+                DestroyAfter(
+                    prefab,
+                    3
+                )
+            );
+
         }
     }
 
@@ -41,7 +64,8 @@ public class RowFilledTrigger : MonoBehaviour
             var row = Physics.OverlapBox(
                 new Vector3(transform.position.x, child.position.y, transform.position.z),
                 _triggerHalfExtents,
-                transform.rotation
+                transform.rotation,
+                _obstacleLayerMask
             );
             //Debug.Log($"Found {row.Length} objects");
             if (row.Length == _playingFieldState.Size) // If row is filled, destroy it and save current y to move
@@ -76,6 +100,12 @@ public class RowFilledTrigger : MonoBehaviour
 
         _checkedYs.Clear();
         _ysToMove.Clear();
+    }
+
+    private IEnumerator DestroyAfter(GameObject toDestroy, int seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        Destroy(toDestroy);
     }
 
     private void OnEnable()

@@ -125,6 +125,7 @@ MonoBehaviour:
   _obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 64
+  _explosionPrefab: {fileID: 1187017490251010786, guid: 8a7ba67d6cb0f494ba43362bc588c7cc, type: 3}
 --- !u!1 &3323158086029487283
 GameObject:
   m_ObjectHideFlags: 0
