@@ -7,6 +7,8 @@ public class SpawnManager : MonoBehaviour
     public event SettledAction OnSettled;
     public delegate void SettledWithDataAction(List<Transform> settledChildren);
     public event SettledWithDataAction OnSettledWithData;
+    public delegate void SettledWithPositionAction(Vector3 position);
+    public event SettledWithPositionAction OnSettledWithPosition;
 
     [SerializeField]
     private ConstantListOfGameObjects PlayerPrefabs;
@@ -26,6 +28,7 @@ public class SpawnManager : MonoBehaviour
     {
         OnSettled?.Invoke();
         OnSettledWithData?.Invoke(_currentChildren);
+        OnSettledWithPosition?.Invoke(_currentChildren[0].position);
         InstantiateNewPlayer();
     }
 

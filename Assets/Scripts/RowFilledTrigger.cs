@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class RowFilledTrigger : MonoBehaviour
 {
+    public delegate void OnDestroyManyRows(int count);
+    public event OnDestroyManyRows OnManyRowsDestroyed;
+    public delegate void OnDestroyAtPosition(Vector3 position);
+    public event OnDestroyAtPosition OnDestroyedAtPosition;
+
     [SerializeField]
     private PlayingFieldState _playingFieldState;
     [SerializeField]
@@ -12,8 +17,8 @@ public class RowFilledTrigger : MonoBehaviour
     private GameObject _explosionPrefab;
 
     private Vector3 _triggerHalfExtents;
-    private HashSet<float> _checkedYs = new HashSet<float>();
-    private HashSet<float> _ysToMove = new HashSet<float>();
+    private readonly HashSet<float> _checkedYs = new();
+    private readonly HashSet<float> _ysToMove = new();
     private SpawnManager _spawnManager;
 
     private void Start()
@@ -54,15 +59,17 @@ public class RowFilledTrigger : MonoBehaviour
     private void CheckTriggerForObjects(List<Transform> settledObjects)
     {
         var clearedRowsCount = 0;
+        Vector3 centerPos = new();
         foreach (Transform child in settledObjects)
         {
             if (_checkedYs.Contains(Utils.RoundFloatToTwoDecimals(child.position.y))) // If this row was checked already, skip it
             {
                 continue;
             }
+            centerPos = new Vector3(transform.position.x, child.position.y, transform.position.z);
 
             var row = Physics.OverlapBox(
-                new Vector3(transform.position.x, child.position.y, transform.position.z),
+                centerPos,
                 _triggerHalfExtents,
                 transform.rotation,
                 _obstacleLayerMask
@@ -95,7 +102,9 @@ public class RowFilledTrigger : MonoBehaviour
         }
         if (clearedRowsCount > 0)
         {
-            _playingFieldState.IncreaseLinesCleared(clearedRowsCount);
+            OnManyRowsDestroyed?.Invoke(clearedRowsCount);
+            OnDestroyedAtPosition?.Invoke(centerPos);
+            //_playingFieldState.IncreaseLinesCleared(clearedRowsCount);
         }
 
         _checkedYs.Clear();

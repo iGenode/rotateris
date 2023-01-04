@@ -27,6 +27,11 @@ public class PlayerController : MonoBehaviour
     private InputAction _rotateAction;
     private InputAction _dropBlockAction;
 
+    //// Audio
+    //[SerializeField]
+    //private AudioClip[] _settleClips;
+    //private AudioSourcePool _audioPool;
+
     private void Awake()
     {
         _playerInput = GetComponent<PlayerInput>();
@@ -37,6 +42,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        //_audioPool = AudioSourcePoolManager.GetPoolByTag("AudioSources");
         _playingFieldState = GetComponentInParent<PlayingFieldState>();
         _playingFieldState.OnFocusChangedEvent += ChangeControllsEventSubscription;
         if (_playingFieldState.IsFocused)
@@ -115,7 +121,7 @@ public class PlayerController : MonoBehaviour
                     // If object was able to move down again after being grounded - stop destruction
                     if (_isGrounded)
                     {
-                        Debug.Log("Stop destruction, can move again");
+                        //Debug.Log("Stop destruction, can move again");
                         _shouldSettle = false;
                         _isGrounded = false;
                     }
@@ -326,6 +332,8 @@ public class PlayerController : MonoBehaviour
 
     private void Settle()
     {
+        //_audioPool.PlayAt(_settleClips[Random.Range(0, _settleClips.Length)], transform.position, true);
+        //SoundManager.PlayRandomSettleClipAt(transform.position, true);
         //Debug.Log($"Settle called for {gameObject} @{transform.parent}");
         // Order of operations matters here
         transform.SetLayerRecursively((int)Mathf.Log(ObstacleLayerMask.value, 2));

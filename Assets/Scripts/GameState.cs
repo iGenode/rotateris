@@ -33,6 +33,8 @@ public class GameState : MonoBehaviour
     private TextMeshProUGUI _localScoreText;
     [SerializeField]
     private PlayingFieldSettings _settings;
+    [SerializeField]
+    private SoundManager _soundManager;
 
     private static readonly List<SpawnManager> _spawnManagers = new();
 
@@ -63,6 +65,10 @@ public class GameState : MonoBehaviour
         _defaultSpawnPos = new(0, 0, -_offsetFromWorldCenter);
         _angleStep = 360f / PlayingFieldCount;
 
+        var audioSource = new GameObject().AddComponent<AudioSource>();
+        audioSource.maxDistance = -_cameraOffset.z * 2;
+        AudioSourcePoolManager.Pools.Add("AudioSources", new AudioSourcePool(audioSource, 8));
+
         //_holderController = GetComponent<HolderController>();
 
         GameObject splineObject = new()
@@ -91,6 +97,15 @@ public class GameState : MonoBehaviour
             state.SetRotationAngles(angles);
             _playingFieldStates.Add(state);
 
+            // Subscribing to row filled events
+            var rowFilledTrigger = playingField.GetComponentInChildren<RowFilledTrigger>();
+            rowFilledTrigger.OnManyRowsDestroyed += state.IncreaseLinesCleared;
+            rowFilledTrigger.OnDestroyedAtPosition += _soundManager.PlayRandomClearRowClipAt;
+
+            // Subscribing to game over event
+            var gameOverTrigger = playingField.GetComponentInChildren<GameOverTrigger>();
+            gameOverTrigger.OnGameOverAction += _soundManager.PlayGameOverClip;
+
             points.Add(
                 new float3(
                     state.CameraPosition.position.x,
@@ -98,9 +113,11 @@ public class GameState : MonoBehaviour
                     state.CameraPosition.position.z
                 )
             );
-            _spawnManagers.Add(
-                playingField.GetComponentInChildren<SpawnManager>()
-            );
+
+            // Subscribing to player settled event
+            var spawnManager = playingField.GetComponentInChildren<SpawnManager>();
+            spawnManager.OnSettledWithPosition += _soundManager.PlayRandomSettleClipAt;
+            _spawnManagers.Add(spawnManager);
         }
 
         // Calculating tangents for each BezierKnot to make a circle for camera to rotate on
@@ -118,14 +135,15 @@ public class GameState : MonoBehaviour
         }
 
         spline.Closed = true;
-        spline.EditType = SplineType.CatmullRom;
+        spline.SetTangentMode(TangentMode.Mirrored);
+        //spline.EditType = SplineType.CatmullRom;
         _splineLength = spline.GetLength();
 
         GameObject anchor = new()
         {
             name = "Look Anchor",
         };
-        anchor.transform.position = new Vector3(0, 7 - (PlayingFieldCount / 2.5f), 0);
+        anchor.transform.position = new Vector3(0, PlayingFieldCount >= 5 ? 9 - (PlayingFieldCount / 3f) : 9, 0);
         var lookAt = _mainCamera.AddComponent<CameraLookAt>();
         lookAt.Anchor = anchor.transform;
 
@@ -193,7 +211,7 @@ public class GameState : MonoBehaviour
         var multiplier = shouldHurry ? 6 : 4 - (PlayingFieldCount * 0.07f) < 1 ? 1 : 4 - (PlayingFieldCount * 0.07f);
         while (Vector3.Distance(_mainCamera.transform.position, destination) >= 1f)
         {
-            Debug.Log($"Current offset: {(_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * multiplier))) % 1f}");
+            //Debug.Log($"Current offset: {(_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * multiplier))) % 1f}");
             _currentOffset = (_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * multiplier))) % 1f;
 
             var posOnSplineLocal = SplineUtility.EvaluatePosition(
