@@ -901,6 +901,42 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 2012146710}
+        m_TargetAssemblyTypeName: UpdateSettings, Assembly-CSharp
+        m_MethodName: UpdateFieldCountOnToggle
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1848215093}
+        m_TargetAssemblyTypeName: PreviewSpawnManager, Assembly-CSharp
+        m_MethodName: SpawnPreviewForCurrentSettings
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1204594571}
+        m_TargetAssemblyTypeName: KeepButtonPressed, Assembly-CSharp
+        m_MethodName: SetAllButtonsInteractable
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 0
 --- !u!1 &453272996
 GameObject:
@@ -3015,6 +3051,7 @@ RectTransform:
   - {fileID: 1272119751}
   - {fileID: 351092264}
   - {fileID: 330791496}
+  - {fileID: 2012146709}
   m_Father: {fileID: 1042261500}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3185,7 +3222,6 @@ GameObject:
   - component: {fileID: 1272119751}
   - component: {fileID: 1272119752}
   - component: {fileID: 1272119753}
-  - component: {fileID: 1272119754}
   m_Layer: 5
   m_Name: Difficulty Slider
   m_TagString: Untagged
@@ -3279,7 +3315,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1272119754}
+      - m_Target: {fileID: 2012146710}
         m_TargetAssemblyTypeName: UpdateSettings, Assembly-CSharp
         m_MethodName: UpdateDifficultyLevel
         m_Mode: 0
@@ -3304,19 +3340,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _textToChange: {fileID: 993634778}
---- !u!114 &1272119754
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1272119750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 250c2dcad54d0de4e92eb23bf2a4d6a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _settings: {fileID: 11400000, guid: c70e4d1350b2dd24d934ff93288af035, type: 2}
 --- !u!1 &1316898917
 GameObject:
   m_ObjectHideFlags: 0
@@ -5147,7 +5170,6 @@ GameObject:
   - component: {fileID: 1816872829}
   - component: {fileID: 1816872828}
   - component: {fileID: 1816872830}
-  - component: {fileID: 1816872831}
   m_Layer: 5
   m_Name: InputField (TMP)
   m_TagString: Untagged
@@ -5292,7 +5314,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1816872831}
+      - m_Target: {fileID: 2012146710}
         m_TargetAssemblyTypeName: UpdateSettings, Assembly-CSharp
         m_MethodName: UpdateFieldCount
         m_Mode: 0
@@ -5411,19 +5433,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6b1b2585e52d094b84e2773089294d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1816872831
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1816872823}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 250c2dcad54d0de4e92eb23bf2a4d6a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _settings: {fileID: 11400000, guid: c70e4d1350b2dd24d934ff93288af035, type: 2}
 --- !u!1 &1837486284
 GameObject:
   m_ObjectHideFlags: 0
@@ -5953,3 +5962,54 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
+--- !u!1 &2012146708
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2012146709}
+  - component: {fileID: 2012146710}
+  m_Layer: 5
+  m_Name: Settings Controller
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2012146709
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2012146708}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1204594570}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2012146710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2012146708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 250c2dcad54d0de4e92eb23bf2a4d6a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _settings: {fileID: 11400000, guid: c70e4d1350b2dd24d934ff93288af035, type: 2}
+  _customDifficultyField: {fileID: 1816872825}
