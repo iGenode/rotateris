@@ -10,22 +10,25 @@ public class HolderController : MonoBehaviour
 
     private void OnHold(InputAction.CallbackContext context)
     {
-        var spawnManager = GameState.GetFocusedSpawnManager();
-        if (spawnManager.CanHold())
+        if (!GameState.IsGamePaused)
         {
-            if (_heldPlayer)
+            var spawnManager = GameState.GetFocusedSpawnManager();
+            if (spawnManager.CanHold())
             {
-                var oldPrefabName = _heldPlayer.gameObject.name;
-                Destroy(_heldPlayer.gameObject);
-                HoldCurrentPlayer();
-                spawnManager.InstantiateNewPlayerWithName(oldPrefabName);
+                if (_heldPlayer)
+                {
+                    var oldPrefabName = _heldPlayer.gameObject.name;
+                    Destroy(_heldPlayer.gameObject);
+                    HoldCurrentPlayer();
+                    spawnManager.InstantiateNewPlayerWithName(oldPrefabName);
+                }
+                else
+                {
+                    HoldCurrentPlayer();
+                    spawnManager.InstantiateNewPlayer();
+                }
+                spawnManager.SetHoldFlag(false);
             }
-            else
-            {
-                HoldCurrentPlayer();
-                spawnManager.InstantiateNewPlayer();
-            }
-            spawnManager.SetHoldFlag(false);
         }
     }
 

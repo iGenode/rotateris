@@ -51,4 +51,6 @@ public static class AudioSourcePoolManager
     public static void Add(string tag, AudioSourcePool pool) => Pools.Add(tag, pool);
 
     public static AudioSourcePool GetPoolByTag(string tag) => Pools[tag];
+
+    public static void Clear() => Pools.Clear();
 }

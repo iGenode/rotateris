@@ -16,6 +16,7 @@ public class GameState : MonoBehaviour
     private float _offsetFromWorldCenter = 15.0f;
     private Vector3 _cameraOffset = new(0, 14, -20);
 
+    public static bool IsGamePaused = false;
     public static bool IsGameOver = false;
     public static int FocusedFieldIndex = 0;
     public int TotalScore = 0;
@@ -150,6 +151,12 @@ public class GameState : MonoBehaviour
         _totalScoreText.text = "Total Score: 0";
     }
 
+    public static void PauseOrResume(bool isPaused)
+    {
+        IsGamePaused = isPaused;
+        Time.timeScale = IsGamePaused ? 0 : 1;
+    }
+
     public static void GameOver()
     {
         IsGameOver = true;
@@ -160,28 +167,31 @@ public class GameState : MonoBehaviour
 
     private void OnRotateField(InputAction.CallbackContext context)
     {
-        var direction = context.ReadValue<float>();
-        _playingFieldStates[FocusedFieldIndex].SetFieldFocus(false);
-
-        ChangeIndex((int)-direction);
-        // Rotating the camera and changing current focused playing field
-        // If already rotating - stop current rotation before starting a new one
-        if (_isRotating)
+        if (!IsGamePaused)
         {
-            //Debug.Log("Stopped previous rotation");
-            StopCoroutine(_rotationCoroutine);
+            var direction = context.ReadValue<float>();
+            _playingFieldStates[FocusedFieldIndex].SetFieldFocus(false);
+
+            ChangeIndex((int)-direction);
+            // Rotating the camera and changing current focused playing field
+            // If already rotating - stop current rotation before starting a new one
+            if (_isRotating)
+            {
+                //Debug.Log("Stopped previous rotation");
+                StopCoroutine(_rotationCoroutine);
+            }
+
+            var endPoint = _cameraSplineContainer.Spline.GetCurve(mod(FocusedFieldIndex - 1, PlayingFieldCount)).P3;
+            _rotationCoroutine = StartCoroutine(
+                RotateOnSpline(
+                    new Vector3(endPoint.x, endPoint.y, endPoint.z),
+                    (int)-direction,
+                    _isRotating
+                )
+            );
+
+            _playingFieldStates[FocusedFieldIndex].SetFieldFocus(true);
         }
-
-        var endPoint = _cameraSplineContainer.Spline.GetCurve(mod(FocusedFieldIndex - 1, PlayingFieldCount)).P3;
-        _rotationCoroutine = StartCoroutine(
-            RotateOnSpline(
-                new Vector3(endPoint.x, endPoint.y, endPoint.z),
-                (int)-direction,
-                _isRotating
-            )
-        );
-
-        _playingFieldStates[FocusedFieldIndex].SetFieldFocus(true);
     }
 
     private void IncreaseTotalScore(int amount)
@@ -243,6 +253,18 @@ public class GameState : MonoBehaviour
         foreach (var state in _playingFieldStates)
         {
             state.OnScoreChangedEvent -= IncreaseTotalScore;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        AudioSourcePoolManager.Clear();
+        // If the game is over or paused restore time scale to prevent freezing the next game
+        if (IsGamePaused || IsGameOver)
+        {
+            Time.timeScale = 1;
+            IsGameOver = false;
+            IsGamePaused = false;
         }
     }
 

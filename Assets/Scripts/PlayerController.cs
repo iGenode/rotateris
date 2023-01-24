@@ -72,7 +72,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!GameState.IsGameOver)
+        if (!GameState.IsGameOver && !GameState.IsGamePaused)
         {
             if (_timeToMove >= GameState.HorizontalMoveDelay)
             {
@@ -177,24 +177,30 @@ public class PlayerController : MonoBehaviour
 
     private void OnRotate(InputAction.CallbackContext context)
     {
-        var directionModifier = -Mathf.RoundToInt(context.ReadValue<float>());
-        if (_pivot && IsSafeToRotate(90 * directionModifier))
+        if (!GameState.IsGamePaused)
         {
-            //transform.Rotate(Vector3.forward, 90 * directionModifier, Space.Self);
-            transform.RotateAround(_pivot.position, transform.forward, 90 * directionModifier);
-            MovePoint.position = transform.position;
+            var directionModifier = -Mathf.RoundToInt(context.ReadValue<float>());
+            if (_pivot && IsSafeToRotate(90 * directionModifier))
+            {
+                //transform.Rotate(Vector3.forward, 90 * directionModifier, Space.Self);
+                transform.RotateAround(_pivot.position, transform.forward, 90 * directionModifier);
+                MovePoint.position = transform.position;
+            }
         }
     }
 
     private void OnDropBlock(InputAction.CallbackContext _)
     {
-        if (_isGrounded || _shouldSettle)
+        if (!GameState.IsGamePaused)
         {
-            Settle();
-        }
+            if (_isGrounded || _shouldSettle)
+            {
+                Settle();
+            }
 
-        _isDroppingDown = true;
-        _shouldMoveDown = true;
+            _isDroppingDown = true;
+            _shouldMoveDown = true;
+        }
     }
 
     /// <summary>
