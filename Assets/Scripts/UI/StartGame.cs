@@ -14,7 +14,7 @@ public class StartGame : MonoBehaviour
     {
         if (_settings.PlayingFieldCount > 0)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            Utils.MenuToGame();
         }
         else
         {

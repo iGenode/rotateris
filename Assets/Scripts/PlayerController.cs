@@ -177,7 +177,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnRotate(InputAction.CallbackContext context)
     {
-        if (!GameState.IsGamePaused)
+        if (!GameState.IsGamePaused && !GameState.IsGameOver)
         {
             var directionModifier = -Mathf.RoundToInt(context.ReadValue<float>());
             if (_pivot && IsSafeToRotate(90 * directionModifier))
@@ -191,7 +191,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnDropBlock(InputAction.CallbackContext _)
     {
-        if (!GameState.IsGamePaused)
+        if (!GameState.IsGamePaused && !GameState.IsGameOver)
         {
             if (_isGrounded || _shouldSettle)
             {

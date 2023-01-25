@@ -13,7 +13,7 @@ public class PauseMenuController : MonoBehaviour
 
     public void GoToMainMenu()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+        Utils.GameToMenu();
     }
 
     private void PauseCallback(InputAction.CallbackContext context)

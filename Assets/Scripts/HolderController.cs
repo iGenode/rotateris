@@ -10,7 +10,7 @@ public class HolderController : MonoBehaviour
 
     private void OnHold(InputAction.CallbackContext context)
     {
-        if (!GameState.IsGamePaused)
+        if (!GameState.IsGamePaused && !GameState.IsGameOver)
         {
             var spawnManager = GameState.GetFocusedSpawnManager();
             if (spawnManager.CanHold())

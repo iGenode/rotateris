@@ -2,9 +2,6 @@ using UnityEngine;
 
 public class GameOverTrigger : MonoBehaviour
 {
-    public delegate void OnGameOver();
-    public event OnGameOver OnGameOverAction;
-
     [SerializeField]
     private LayerMask _obstacleLayerMask;
     private Vector3 _halfExtents;
@@ -25,8 +22,7 @@ public class GameOverTrigger : MonoBehaviour
             transform.rotation,
             _obstacleLayerMask).Length != 0)
         {
-            Debug.Log("GAME OVER");
-            OnGameOverAction?.Invoke();
+            //Debug.Log("GAME OVER");
             GameState.GameOver();
         }
     }

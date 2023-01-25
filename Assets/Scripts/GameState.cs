@@ -10,6 +10,9 @@ using UnityEngine.UI;
 
 public class GameState : MonoBehaviour
 {
+    public delegate void OnGameOver();
+    public static event OnGameOver OnGameOverAction;
+
     public const float HorizontalMoveDelay = .2f;
     public const int MoveUnit = 1;
     //private const float _offsetFromWorldCenter = 20.0f;
@@ -54,8 +57,41 @@ public class GameState : MonoBehaviour
     //temp
     private Vector3 _defaultSpawnPos;
 
+    public int TotalLinesCleared
+    {
+        get
+        {
+            var count = 0;
+            foreach (var playingFieldState in _playingFieldStates)
+            {
+                count += playingFieldState.LinesCleared;
+            }
+            return count;
+        }
+    }
+
+    public int HighestDifficulty
+    {
+        get
+        {
+            var difficulty = 0;
+            foreach (var playingFieldState in _playingFieldStates)
+            {
+                if (playingFieldState.Level > difficulty)
+                {
+                    difficulty = playingFieldState.Level;
+                }
+            }
+            return difficulty;
+        }
+    }
+
     private void Start()
     {
+        FocusedFieldIndex = 0;
+        IsGameOver = false;
+        IsGamePaused = false;
+
         // Setting playing field count as chosen by the player
         PlayingFieldCount = _settings.PlayingFieldCount;
 
@@ -102,10 +138,6 @@ public class GameState : MonoBehaviour
             var rowFilledTrigger = playingField.GetComponentInChildren<RowFilledTrigger>();
             rowFilledTrigger.OnManyRowsDestroyed += state.IncreaseLinesCleared;
             rowFilledTrigger.OnDestroyedAtPosition += _soundManager.PlayRandomClearRowClipAt;
-
-            // Subscribing to game over event
-            var gameOverTrigger = playingField.GetComponentInChildren<GameOverTrigger>();
-            gameOverTrigger.OnGameOverAction += _soundManager.PlayGameOverClip;
 
             points.Add(
                 new float3(
@@ -160,6 +192,7 @@ public class GameState : MonoBehaviour
     public static void GameOver()
     {
         IsGameOver = true;
+        OnGameOverAction?.Invoke();
         Time.timeScale = 0;
     }
 
@@ -167,7 +200,7 @@ public class GameState : MonoBehaviour
 
     private void OnRotateField(InputAction.CallbackContext context)
     {
-        if (!IsGamePaused)
+        if (!IsGamePaused && !IsGameOver)
         {
             var direction = context.ReadValue<float>();
             _playingFieldStates[FocusedFieldIndex].SetFieldFocus(false);
@@ -240,6 +273,7 @@ public class GameState : MonoBehaviour
     {
         _action.Enable();
         _action.performed += OnRotateField;
+        OnGameOverAction += _soundManager.PlayGameOverClip;
         foreach (var state in _playingFieldStates)
         {
             state.OnScoreChangedEvent += IncreaseTotalScore;
@@ -250,6 +284,7 @@ public class GameState : MonoBehaviour
     {
         _action.Disable();
         _action.performed -= OnRotateField;
+        OnGameOverAction -= _soundManager.PlayGameOverClip;
         foreach (var state in _playingFieldStates)
         {
             state.OnScoreChangedEvent -= IncreaseTotalScore;
@@ -259,6 +294,7 @@ public class GameState : MonoBehaviour
     private void OnDestroy()
     {
         AudioSourcePoolManager.Clear();
+        _spawnManagers.Clear();
         // If the game is over or paused restore time scale to prevent freezing the next game
         if (IsGamePaused || IsGameOver)
         {
