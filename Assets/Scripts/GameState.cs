@@ -36,6 +36,8 @@ public class GameState : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI _localScoreText;
     [SerializeField]
+    private TextMeshProUGUI _difficultyLevelText;
+    [SerializeField]
     private PlayingFieldSettings _settings;
     [SerializeField]
     private SoundManager _soundManager;
@@ -129,6 +131,7 @@ public class GameState : MonoBehaviour
             // Setting difficulty level as chosen by the player
             state.SetDifficulty(_settings.DifficultyLevel);
             state.SetLocalScoreText(_localScoreText);
+            state.SetDifficultyLevelText(_difficultyLevelText);
             state.OnScoreChangedEvent += IncreaseTotalScore;
             state.SetFieldFocus(i == FocusedFieldIndex);
             state.SetRotationAngles(angles);

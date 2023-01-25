@@ -24,8 +24,7 @@ public class PreviewSpawnManager : MonoBehaviour
         var fieldCount = _settings.PlayingFieldCount;
         _offsetFromWorldCenter = 15 + 13 * (fieldCount / 5);
         _cameraOffset.z = -20 - _offsetFromWorldCenter;
-        _mainCamera.transform.position = _cameraOffset;
-        _mainCamera.transform.rotation = _cameraRotation;
+        _mainCamera.transform.SetPositionAndRotation(_cameraOffset, _cameraRotation);
 
         var angleStep = fieldCount > 0 ? (float) 360 / fieldCount : 0;
         var defaultSpawnPos = new Vector3(0, 0, -_offsetFromWorldCenter);

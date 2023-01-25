@@ -33,6 +33,7 @@ public class PlayingFieldState : MonoBehaviour
     [SerializeField]
     private ConstantListOfFloats _difficultyLevels;
     private TextMeshProUGUI _localScoreText;
+    private TextMeshProUGUI _difficultyLevelText;
 
     public void SetFieldFocus(bool isFocused)
     {
@@ -63,6 +64,8 @@ public class PlayingFieldState : MonoBehaviour
     }
 
     public void UpdateScoreText() => _localScoreText.text = $"Score: {Score}";
+
+    public void UpdateDifficultyText() => _difficultyLevelText.text = $"Difficulty Level: {Level}";
 
     public void IncreaseLinesCleared(int count)
     {
@@ -95,10 +98,16 @@ public class PlayingFieldState : MonoBehaviour
 
     public void SetLocalScoreText(TextMeshProUGUI tmp) => _localScoreText = tmp;
 
+    public void SetDifficultyLevelText(TextMeshProUGUI tmp) => _difficultyLevelText = tmp;
+
     public void SetDifficulty(int level)
     {
         Level = level;
         SetSpeed(GetSpeedForLevel(level));
+        if (IsFocused)
+        {
+            UpdateDifficultyText();
+        }
     }
 
     private void SetSpeed(float speed)
