@@ -9,6 +9,8 @@ public class PlayingFieldSettings : ScriptableObject
     private int _playingFieldCount;
     [SerializeField]
     private int _difficultyLevel;
+    [SerializeField]
+    private string _lastControlScheme;
 
     public int PlayingFieldCount
     {
@@ -20,5 +22,11 @@ public class PlayingFieldSettings : ScriptableObject
     {
         get { return _difficultyLevel; }
         set { _difficultyLevel = value; }
+    }
+
+    public string LastControlScheme
+    {
+        get { return _lastControlScheme; }
+        set { _lastControlScheme = value; }
     }
 }

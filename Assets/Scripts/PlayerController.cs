@@ -20,17 +20,13 @@ public class PlayerController : MonoBehaviour
     private Transform _pivot;
     private bool _shouldSettle = false;
     private bool _isDroppingDown = false;
+    private bool _isFirstEnable = true;
 
     // Controls
     private PlayerInput _playerInput;
     private InputAction _moveAction;
     private InputAction _rotateAction;
     private InputAction _dropBlockAction;
-
-    //// Audio
-    //[SerializeField]
-    //private AudioClip[] _settleClips;
-    //private AudioSourcePool _audioPool;
 
     private void Awake()
     {
@@ -42,17 +38,13 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        //_audioPool = AudioSourcePoolManager.GetPoolByTag("AudioSources");
         _playingFieldState = GetComponentInParent<PlayingFieldState>();
         _playingFieldState.OnFocusChangedEvent += ChangeControllsEventSubscription;
-        if (_playingFieldState.IsFocused)
-        {
-            _playerInput.enabled = true;
-        } 
-        else
-        {
-            ChangeControllsEventSubscription(false);
-        }
+
+        // Setting last control scheme as default to prevent switching the ui after scene transition
+        _playerInput.defaultControlScheme = ControlsViewController.LastControlScheme;
+        // Changing if this playerController should listen to input events based on playingField's focused flag
+        ChangeControllsEventSubscription(_playingFieldState.IsFocused);
 
         MovePoint.parent = null;
         transform.position = MovePoint.position;
@@ -338,8 +330,6 @@ public class PlayerController : MonoBehaviour
 
     private void Settle()
     {
-        //_audioPool.PlayAt(_settleClips[Random.Range(0, _settleClips.Length)], transform.position, true);
-        //SoundManager.PlayRandomSettleClipAt(transform.position, true);
         //Debug.Log($"Settle called for {gameObject} @{transform.parent}");
         // Order of operations matters here
         transform.SetLayerRecursively((int)Mathf.Log(ObstacleLayerMask.value, 2));
@@ -380,11 +370,18 @@ public class PlayerController : MonoBehaviour
 
     private void OnEnable()
     {
-        ChangeControllsEventSubscription(true);
-        // Since playingFieldState can not be acquired in Awake it will be null on first enable
-        if (_playingFieldState != null)
+        // Prevent setting all PlayerInputs and events as active before determining if they should be set in Start()
+        if (!_isFirstEnable)
         {
-            _playingFieldState.OnFocusChangedEvent += ChangeControllsEventSubscription;
+            ChangeControllsEventSubscription(true);
+            // Since playingFieldState can not be acquired in Awake it will be null on first enable
+            if (_playingFieldState != null)
+            {
+                _playingFieldState.OnFocusChangedEvent += ChangeControllsEventSubscription;
+            }
+        } else
+        {
+            _isFirstEnable = false;
         }
     }
 
@@ -403,17 +400,18 @@ public class PlayerController : MonoBehaviour
             _moveAction.performed += OnMove;
             _moveAction.canceled += OnMove;
             _rotateAction.performed += OnRotate;
-            // TODO: test if started is enough and right
             _dropBlockAction.started += OnDropBlock;
+            _playerInput.controlsChangedEvent.AddListener(ControlsViewController.Instance.ChangeControlsIcons);
         }
         else
         {
+            // TODO: Can add a flag to prevent pointless unsubscription of not yet subscribed events
             _moveAction.started -= OnMove;
             _moveAction.performed -= OnMove;
             _moveAction.canceled -= OnMove;
             _rotateAction.performed -= OnRotate;
-            // TODO: test if started is enough and right
             _dropBlockAction.started -= OnDropBlock;
+            _playerInput.controlsChangedEvent.RemoveListener(ControlsViewController.Instance.ChangeControlsIcons);
         }
         _playerInput.enabled = shouldListen;
     }

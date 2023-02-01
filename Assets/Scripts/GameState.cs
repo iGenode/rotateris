@@ -6,7 +6,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Splines;
-using UnityEngine.UI;
 
 public class GameState : MonoBehaviour
 {

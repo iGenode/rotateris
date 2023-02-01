@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PauseMenuController : MonoBehaviour
 {
@@ -10,6 +8,8 @@ public class PauseMenuController : MonoBehaviour
     private InputAction _pauseAction;
     [SerializeField]
     private GameObject _pauseMenu;
+    [SerializeField]
+    private Button _firstSelectedButton;
 
     public void GoToMainMenu()
     {
@@ -19,6 +19,10 @@ public class PauseMenuController : MonoBehaviour
     private void PauseCallback(InputAction.CallbackContext context)
     {
         _pauseMenu.SetActive(!GameState.IsGamePaused);
+        if (!GameState.IsGamePaused)
+        {
+            _firstSelectedButton.Select();
+        }
         GameState.PauseOrResume(!GameState.IsGamePaused);
     }
 

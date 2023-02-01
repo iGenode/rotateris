@@ -64,7 +64,7 @@ public class SpawnManager : MonoBehaviour
         var prefab = PlayerPrefabs.List.Find(shape => name.Contains(shape.name));
         if (prefab == null)
         {
-            Debug.Log("Name not found!");
+            Debug.LogWarning("Name not found!");
             return;
         }
         var currentPlayer = Instantiate(prefab, _spawnPoint.position, transform.parent.rotation);

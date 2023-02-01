@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameOverController : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class GameOverController : MonoBehaviour
     //private TextMeshProUGUI _highScoreText;
     [SerializeField]
     private GameState _gameState;
+    [SerializeField]
+    private Button _firstSelectedButton;
 
 
     public void GoToMainMenu()
@@ -32,6 +35,7 @@ public class GameOverController : MonoBehaviour
     {
         _gameOverMenu.SetActive(true);
 
+        _firstSelectedButton.Select();
         _totalScoreText.text = _gameState.TotalScore.ToString();
         _highestDifficultyText.text = _gameState.HighestDifficulty.ToString();
         _linesClearedText.text = _gameState.TotalLinesCleared.ToString();
