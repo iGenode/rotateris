@@ -4,6 +4,7 @@ using TMPro;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using UnityEngine.Splines;
 
@@ -40,6 +41,8 @@ public class GameState : MonoBehaviour
     private PlayingFieldSettings _settings;
     [SerializeField]
     private SoundManager _soundManager;
+    [SerializeField]
+    private AudioMixerGroup _audioMixerGroup;
 
     private static readonly List<SpawnManager> _spawnManagers = new();
 
@@ -105,6 +108,7 @@ public class GameState : MonoBehaviour
 
         var audioSource = new GameObject().AddComponent<AudioSource>();
         audioSource.maxDistance = -_cameraOffset.z * 2;
+        audioSource.outputAudioMixerGroup = _audioMixerGroup;
         AudioSourcePoolManager.Pools.Add("AudioSources", new AudioSourcePool(audioSource, 8));
 
         //_holderController = GetComponent<HolderController>();

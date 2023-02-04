@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 public static class Utils
@@ -23,6 +24,15 @@ public static class Utils
     {
         return Quaternion.Euler(angles) * (point - pivot) + pivot;
     }
+
+
+    // Sound maths
+    // AudioMixer decibels calculations
+    // https://forum.unity.com/threads/changing-audio-mixer-group-volume-with-ui-slider.297884/
+    public static float NormalizeForMixer(float value) => Mathf.Log(value) * 20.0f;
+    public static float NormalizeForAudioLabel(float value) => Mathf.Round(value * 100.0f);
+    public static float NormalizeForUISlider(float value) => Mathf.Exp(value / 20);
+
 
     // Scene management
     public static void MenuToGame()
