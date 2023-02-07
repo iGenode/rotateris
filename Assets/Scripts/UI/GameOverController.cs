@@ -4,8 +4,11 @@ using UnityEngine.UI;
 
 public class GameOverController : MonoBehaviour
 {
+    [Header("Game Over Menu")]
     [SerializeField]
     private GameObject _gameOverMenu;
+
+    [Header("Text Fields")]
     [SerializeField]
     private TextMeshProUGUI _totalScoreText;
     [SerializeField]
@@ -15,10 +18,18 @@ public class GameOverController : MonoBehaviour
     // TODO: high score
     //[SerializeField]
     //private TextMeshProUGUI _highScoreText;
+
+    [Header("Game State")]
     [SerializeField]
     private GameState _gameState;
+
+    [Header("Button to select")]
     [SerializeField]
     private Button _firstSelectedButton;
+
+    [Header("Game Objects to hide")]
+    [SerializeField]
+    private GameObject[] _objectsToHide;
 
 
     public void GoToMainMenu()
@@ -39,6 +50,11 @@ public class GameOverController : MonoBehaviour
         _totalScoreText.text = _gameState.TotalScore.ToString();
         _highestDifficultyText.text = _gameState.HighestDifficulty.ToString();
         _linesClearedText.text = _gameState.TotalLinesCleared.ToString();
+
+        foreach (GameObject obj in _objectsToHide)
+        {
+            obj.SetActive(false);
+        }
     }
 
     private void OnEnable()

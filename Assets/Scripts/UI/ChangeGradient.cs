@@ -14,21 +14,21 @@ public class ChangeGradient : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     private void Start()
     {
-        _text = GetComponent<TextMeshProUGUI>();
+        //_text = GetComponent<TextMeshProUGUI>();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        _text.colorGradientPreset = _highlightedGradient;
+        //_text.colorGradientPreset = _highlightedGradient;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        _text.colorGradientPreset = _normalGradient;
+        //_text.colorGradientPreset = _normalGradient;
     }
 
     private void OnDisable()
     {
-        _text.colorGradientPreset = _normalGradient;
+        //_text.colorGradientPreset = _normalGradient;
     }
 }
