@@ -66,7 +66,8 @@ public class PlayerController : MonoBehaviour
     {
         if (!GameState.IsGameOver && !GameState.IsGamePaused)
         {
-            if (_timeToMove >= GameState.HorizontalMoveDelay)
+            // Decreasing horizontal delay over time to ease horizontal movement on higher levels
+            if (_timeToMove >= (GameState.HorizontalMoveDelay - 0.015f * _playingFieldState.Level / 2.0f))
             {
                 // Since actual movement happens on different frames (only after HorizontalMoveDelay)
                 // - check if still safe to move, and if not - return MovePoint to player's transform.position
@@ -339,6 +340,7 @@ public class PlayerController : MonoBehaviour
         // Detaching children and destroying the gameObject
         transform.DetachChildren();
         Destroy(gameObject);
+        Destroy(MovePoint);
         // Notifying listeners
         OnSettlePlayer?.Invoke();
     }

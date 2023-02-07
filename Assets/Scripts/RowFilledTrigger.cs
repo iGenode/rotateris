@@ -46,10 +46,11 @@ public class RowFilledTrigger : MonoBehaviour
                 child.GetComponent<Renderer>().material = material;
             }
             // Starting a timer to destroy the explosion
+            // time scales with difficulty level to prevent covering the blocks with particles for too long at high levels
             StartCoroutine(
                 DestroyAfter(
                     prefab,
-                    3
+                    3 - 0.1f * _playingFieldState.Level
                 )
             );
 
@@ -111,7 +112,7 @@ public class RowFilledTrigger : MonoBehaviour
         _ysToMove.Clear();
     }
 
-    private IEnumerator DestroyAfter(GameObject toDestroy, int seconds)
+    private IEnumerator DestroyAfter(GameObject toDestroy, float seconds)
     {
         yield return new WaitForSeconds(seconds);
         Destroy(toDestroy);
