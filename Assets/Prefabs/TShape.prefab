@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1007744650156846018
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2167507987738830691}
+  m_Layer: 0
+  m_Name: Pivot Point
+  m_TagString: MovePoint
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2167507987738830691
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1007744650156846018}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4035913643361000663}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3663815099857139720
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,6 +519,7 @@ Transform:
   - {fileID: 4035913642569179944}
   - {fileID: 4035913642906252257}
   - {fileID: 5383115063552936588}
+  - {fileID: 2167507987738830691}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -586,15 +618,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MovePoint: {fileID: 5383115063552936588}
+  PivotPoint: {fileID: 2167507987738830691}
   ObstacleLayerMask:
     serializedVersion: 2
     m_Bits: 64
-  _settleClips:
-  - {fileID: 8300000, guid: a9cdd5c72097e0042a19ca3da2736189, type: 3}
-  - {fileID: 8300000, guid: ef0f3f2a4419b0b488770e7fbbd3f5c2, type: 3}
-  - {fileID: 8300000, guid: 4225e477a8898594c9d0ab17a032af1b, type: 3}
-  - {fileID: 8300000, guid: 764072f6c45b00d4196d10efccdefb75, type: 3}
-  - {fileID: 8300000, guid: fd1ef85e8e28b0349b839faaf8caa438, type: 3}
 --- !u!54 &1447457515613354752
 Rigidbody:
   m_ObjectHideFlags: 0

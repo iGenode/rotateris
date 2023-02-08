@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public event SettlePlayerAction OnSettlePlayer;
 
     public Transform MovePoint;
+    public Transform PivotPoint;
     public LayerMask ObstacleLayerMask;
 
     private PlayingFieldState _playingFieldState;
@@ -17,7 +18,7 @@ public class PlayerController : MonoBehaviour
     private bool _isGrounded = false;
     // Since all children are the same - cache one extent for later calculations
     private Vector3 _childExtents = new(0.4f, 0.4f, 0.4f);
-    private Transform _pivot;
+
     private bool _shouldSettle = false;
     private bool _isDroppingDown = false;
     private bool _isFirstEnable = true;
@@ -55,9 +56,6 @@ public class PlayerController : MonoBehaviour
         {
             MoveFigure(new(0, numberOfCollisions + 1, 0));
         }
-
-        // TODO: probably smarter to just pick one of the objects in a prefab
-        _pivot = GetRotationPoint();
 
         StartCoroutine(WaitToMove());
     }
@@ -134,18 +132,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private Transform GetRotationPoint()
-    {
-        foreach (Transform child in transform)
-        {
-            if (child.GetComponent<Collider>().ClosestPoint(transform.position) == transform.position)
-            {
-                return child;
-            }
-        }
-        return null;
-    }
-
     private IEnumerator WaitToMove()
     {
         _shouldMoveDown = false;
@@ -173,10 +159,9 @@ public class PlayerController : MonoBehaviour
         if (!GameState.IsGamePaused && !GameState.IsGameOver)
         {
             var directionModifier = -Mathf.RoundToInt(context.ReadValue<float>());
-            if (_pivot && IsSafeToRotate(90 * directionModifier))
+            if (PivotPoint && IsSafeToRotate(90 * directionModifier))
             {
-                //transform.Rotate(Vector3.forward, 90 * directionModifier, Space.Self);
-                transform.RotateAround(_pivot.position, transform.forward, 90 * directionModifier);
+                transform.RotateAround(PivotPoint.position, transform.forward, 90 * directionModifier);
                 MovePoint.position = transform.position;
             }
         }
@@ -211,7 +196,7 @@ public class PlayerController : MonoBehaviour
         {
             var point = Utils.RotatePointAroundPivot(
                 child.position,
-                _pivot.position,
+                PivotPoint.position,
                 Quaternion.AngleAxis(angle, transform.parent.forward).eulerAngles
             );
             // Test if a part of the object collides with something after roatation
@@ -287,7 +272,7 @@ public class PlayerController : MonoBehaviour
         {
             var point = Utils.RotatePointAroundPivot(
                 child.position + move,
-                _pivot.position + move,
+                PivotPoint.position + move,
                 Quaternion.AngleAxis(angle, transform.parent.forward).eulerAngles
             );
             // If something still collides after rotation and move - cant move that way
@@ -337,10 +322,10 @@ public class PlayerController : MonoBehaviour
         Destroy(gameObject.GetComponent<Rigidbody>());
         Destroy(this);
         Destroy(MovePoint.gameObject);
+        Destroy(PivotPoint.gameObject);
         // Detaching children and destroying the gameObject
         transform.DetachChildren();
         Destroy(gameObject);
-        Destroy(MovePoint);
         // Notifying listeners
         OnSettlePlayer?.Invoke();
     }
