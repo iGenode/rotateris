@@ -21,9 +21,11 @@ public class ResolutionManager : MonoBehaviour
 
         _fullscreenToggle.isOn = Screen.fullScreen;
 
-        _filteredResolutions = 
+        // Filtering only the same refresh rate resolutions
+        // Refresh rate is cast to int to prevent odd refresh rates from filtering off all resolutions
+        _filteredResolutions =
             Screen.resolutions.Where(
-                res => res.refreshRateRatio.Equals(Screen.currentResolution.refreshRateRatio)
+                res => ((int)res.refreshRateRatio.value).Equals((int)Screen.currentResolution.refreshRateRatio.value)
             ).ToList();
 
         List<string> options = new();
@@ -44,7 +46,7 @@ public class ResolutionManager : MonoBehaviour
     public void SetResolution(int dropdownIndex)
     {
         Resolution resolution = _filteredResolutions[dropdownIndex];
-        Screen.SetResolution(resolution.width, resolution.height, true);
+        Screen.SetResolution(resolution.width, resolution.height, _fullscreenToggle.isOn);
     }
 
     public void ToggleFullscreen(bool isOn)

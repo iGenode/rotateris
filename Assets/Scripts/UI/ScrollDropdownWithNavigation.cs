@@ -1,8 +1,9 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(ScrollRect))]
-public class ScrollDropdownWithNavigation : MonoBehaviour
+public class ScrollDropdownWithNavigation : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     // Rect transform of the container of the scrollRect
     public RectTransform MaskTransform;
@@ -10,6 +11,7 @@ public class ScrollDropdownWithNavigation : MonoBehaviour
     private ScrollRect _scrollRect;
     private RectTransform _scrollTransform;
     private RectTransform _content;
+    private bool _mouseOver = false;
 
     private void Awake()
     {
@@ -24,6 +26,10 @@ public class ScrollDropdownWithNavigation : MonoBehaviour
     /// <param name="target">The target that needs to be located</param>
     public void CenterOnItem(RectTransform target)
     {
+        if (_mouseOver)
+        {
+            return;
+        }
         // Item is here
         var itemCenterPositionInScroll = GetWorldPointInWidget(_scrollTransform, GetWidgetWorldPoint(target));
         // But must be here
@@ -46,6 +52,16 @@ public class ScrollDropdownWithNavigation : MonoBehaviour
         //this is the wanted new position for the content
         var newAnchoredPosition = _content.anchoredPosition3D + difference;
         _content.anchoredPosition3D = newAnchoredPosition;
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        _mouseOver = true;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        _mouseOver = false;
     }
 
     private Vector3 GetWidgetWorldPoint(RectTransform target)
