@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Playing Field Settings Object", menuName = "ScriptableObjects/PlayingFieldSettings", order = 1)]

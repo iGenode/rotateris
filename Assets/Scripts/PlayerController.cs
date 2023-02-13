@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
 
         var numberOfCollisions = NumberOfCollisions();
         // If figure collides with something as it spawns - move up by a number of collisions + 1 for safety
-        if (numberOfCollisions != 0) 
+        if (numberOfCollisions != 0)
         {
             MoveFigure(new(0, numberOfCollisions + 1, 0));
         }
@@ -366,7 +366,8 @@ public class PlayerController : MonoBehaviour
             {
                 _playingFieldState.OnFocusChangedEvent += ChangeControllsEventSubscription;
             }
-        } else
+        }
+        else
         {
             _isFirstEnable = false;
         }

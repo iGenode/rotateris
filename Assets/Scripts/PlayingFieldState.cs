@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayingFieldState : MonoBehaviour
 {
@@ -43,7 +42,7 @@ public class PlayingFieldState : MonoBehaviour
             SetDifficulty(Level);
             OnFocusChangedEvent?.Invoke(true);
             UpdateScoreText();
-        } 
+        }
         else
         {
             IsFocused = isFocused;
@@ -74,7 +73,7 @@ public class PlayingFieldState : MonoBehaviour
         {
             case 1:
                 //Debug.Log("Increasing score by 100");
-                IncreaseScore(100); 
+                IncreaseScore(100);
                 break;
             case 2:
                 //Debug.Log("Increasing score by 300");
@@ -87,7 +86,7 @@ public class PlayingFieldState : MonoBehaviour
             case 4:
                 //Debug.Log("Increasing score by 800");
                 IncreaseScore(800);
-                break; 
+                break;
         }
 
         if (LinesCleared >= 10 * Level + 10)

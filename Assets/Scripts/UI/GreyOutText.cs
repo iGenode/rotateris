@@ -6,7 +6,7 @@ public class GreyOutText : MonoBehaviour
     private TMP_InputField _inputField;
     private TextMeshProUGUI _text;
     private bool _prevState;
-    private Color32 _greyedOutColor = new(104,104, 104, 255);
+    private Color32 _greyedOutColor = new(104, 104, 104, 255);
 
     private void Start()
     {

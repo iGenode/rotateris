@@ -20,7 +20,7 @@ public class OnToggled : MonoBehaviour
         if (isOn)
         {
             _onToggledOn.Invoke();
-        } 
+        }
         else
         {
             _onToggledOff.Invoke();

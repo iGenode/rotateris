@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,13 +19,13 @@ public class PreviewSpawnManager : MonoBehaviour
     public void SpawnPreviewForCurrentSettings()
     {
         DestroyOldFields();
-        
+
         var fieldCount = _settings.PlayingFieldCount;
         _offsetFromWorldCenter = 15 + 13 * (fieldCount / 5);
         _cameraOffset.z = -20 - _offsetFromWorldCenter;
         _mainCamera.transform.SetPositionAndRotation(_cameraOffset, _cameraRotation);
 
-        var angleStep = fieldCount > 0 ? (float) 360 / fieldCount : 0;
+        var angleStep = fieldCount > 0 ? (float)360 / fieldCount : 0;
         var defaultSpawnPos = new Vector3(0, 0, -_offsetFromWorldCenter);
 
         for (int i = 0; i < fieldCount; i++)

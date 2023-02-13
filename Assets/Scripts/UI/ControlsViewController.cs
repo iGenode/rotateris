@@ -36,12 +36,12 @@ public class ControlsViewController : MonoBehaviour
     // Singleton instances
     private static ControlsViewController _instance = null;
 
-    public static ControlsViewController Instance 
+    public static ControlsViewController Instance
     {
-        get 
+        get
         {
             return _instance;
-        } 
+        }
     }
 
     private void Awake()
