@@ -15,7 +15,6 @@ public class GameState : MonoBehaviour
 
     public const float HorizontalMoveDelay = .2f;
     public const int MoveUnit = 1;
-    //private const float _offsetFromWorldCenter = 20.0f;
     private float _offsetFromWorldCenter = 15.0f;
     private Vector3 _cameraOffset = new(0, 14, -20);
 
@@ -50,7 +49,6 @@ public class GameState : MonoBehaviour
     private float _angleStep;
     private Coroutine _rotationCoroutine;
     private bool _isRotating = false;
-    //private HolderController _holderController;
 
     // Spline variables
     private SplineContainer _cameraSplineContainer;
@@ -110,8 +108,6 @@ public class GameState : MonoBehaviour
         audioSource.maxDistance = -_cameraOffset.z * 2;
         audioSource.outputAudioMixerGroup = _audioMixerGroup;
         AudioSourcePoolManager.Pools.Add("AudioSources", new AudioSourcePool(audioSource, 8));
-
-        //_holderController = GetComponent<HolderController>();
 
         GameObject splineObject = new()
         {
@@ -175,7 +171,6 @@ public class GameState : MonoBehaviour
 
         spline.Closed = true;
         spline.SetTangentMode(TangentMode.Mirrored);
-        //spline.EditType = SplineType.CatmullRom;
         _splineLength = spline.GetLength();
 
         GameObject anchor = new()

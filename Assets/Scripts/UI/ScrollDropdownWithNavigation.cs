@@ -38,7 +38,7 @@ public class ScrollDropdownWithNavigation : MonoBehaviour, IPointerEnterHandler,
         var difference = targetPositionInScroll - itemCenterPositionInScroll;
         difference.z = 0f;
 
-        //clear axis data that is not enabled in the scrollrect
+        // clear axis data that is not enabled in the scrollrect
         if (!_scrollRect.horizontal)
         {
             difference.x = 0f;
@@ -49,7 +49,7 @@ public class ScrollDropdownWithNavigation : MonoBehaviour, IPointerEnterHandler,
             difference.y = 0f;
         }
 
-        //this is the wanted new position for the content
+        // this is the wanted new position for the content
         var newAnchoredPosition = _content.anchoredPosition3D + difference;
         _content.anchoredPosition3D = newAnchoredPosition;
     }
@@ -66,7 +66,7 @@ public class ScrollDropdownWithNavigation : MonoBehaviour, IPointerEnterHandler,
 
     private Vector3 GetWidgetWorldPoint(RectTransform target)
     {
-        //pivot position + item size has to be included
+        // pivot position + item size has to be included
         var pivotOffset = new Vector3(
             (0.5f - target.pivot.x) * target.rect.size.x,
             (0.5f - target.pivot.y) * target.rect.size.y,

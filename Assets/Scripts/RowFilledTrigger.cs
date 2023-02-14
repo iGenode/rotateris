@@ -23,7 +23,7 @@ public class RowFilledTrigger : MonoBehaviour
 
     private void Start()
     {
-        _spawnManager = GameObject.Find($"/{transform.parent.name}/Spawn Manager").GetComponent<SpawnManager>();
+        _spawnManager = transform.parent.GetComponentInChildren<SpawnManager>();
         _spawnManager.OnSettledWithData += CheckTriggerForObjects;
 
         _triggerHalfExtents = new(_playingFieldState.Size / 2.0f - .1f, 0.45f, 0.45f);
@@ -105,7 +105,6 @@ public class RowFilledTrigger : MonoBehaviour
         {
             OnManyRowsDestroyed?.Invoke(clearedRowsCount);
             OnDestroyedAtPosition?.Invoke(centerPos);
-            //_playingFieldState.IncreaseLinesCleared(clearedRowsCount);
         }
 
         _checkedYs.Clear();

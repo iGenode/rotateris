@@ -51,7 +51,7 @@ public class PlayingFieldState : MonoBehaviour
         }
     }
 
-    // TODO: more scoring https://tetris.wiki/Scoring
+    // TODO: more scoring
     public void IncreaseScore(int amount)
     {
         Score += amount * Level;

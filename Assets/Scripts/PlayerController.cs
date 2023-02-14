@@ -403,13 +403,4 @@ public class PlayerController : MonoBehaviour
         }
         _playerInput.enabled = shouldListen;
     }
-
-    // Old Debug
-    //private void OnDrawGizmos()
-    //{
-    //    Debug.Log($"Drawing gizmos for {gameObject} @{transform.parent} with {_extents}");
-    //    Gizmos.matrix = transform.localToWorldMatrix;
-    //    Gizmos.color = Color.red;
-    //    Gizmos.DrawWireCube(Vector3.zero, _extents * 2);
-    //}
 }

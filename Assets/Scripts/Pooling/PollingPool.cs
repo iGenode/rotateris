@@ -9,7 +9,7 @@ public abstract class PollingPool<T> where T : Component
     private readonly LinkedList<T> inuse = new();
     private readonly Queue<LinkedListNode<T>> nodePool = new();
 
-    private int sizeLimit;
+    private readonly int sizeLimit;
     private int lastCheckFrame = -1;
 
     protected PollingPool(T prefab, int sizeLimit)
@@ -24,7 +24,6 @@ public abstract class PollingPool<T> where T : Component
         while (node != null)
         {
             var current = node;
-            // What's this?
             node = node.Next;
 
             if (!IsActive(current.Value))

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+// TODO: should this be a monoBehaviour?
 public class SaveSettingsEvent : MonoBehaviour
 {
     public delegate void OnSaveSettings();

@@ -9,7 +9,7 @@ public class GameOverTrigger : MonoBehaviour
 
     private void Start()
     {
-        _spawnManager = GameObject.Find($"/{transform.parent.name}/Spawn Manager").GetComponent<SpawnManager>();
+        _spawnManager = transform.parent.GetComponentInChildren<SpawnManager>();
         _spawnManager.OnSettled += CheckTriggerForObjects;
 
         _halfExtents = gameObject.GetComponent<Collider>().bounds.extents;
@@ -22,7 +22,6 @@ public class GameOverTrigger : MonoBehaviour
             transform.rotation,
             _obstacleLayerMask).Length != 0)
         {
-            //Debug.Log("GAME OVER");
             GameState.GameOver();
         }
     }
