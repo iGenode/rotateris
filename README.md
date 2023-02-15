@@ -3,7 +3,7 @@
 Rotateris is a puzzle game in which the player is challenged to rotate and move differently shaped blocks as they fall from the top of the playing field(**_s_**). The goal is to arrange the blocks to form complete rows, which will then disappear and score points. An interesting **_twist_** is that there can be multiple playing fields at once, which can be played simultaneously by rotating the camera between them.
 
 # Features
-An overview of the main features of the game with gif previews:
+An overview of the main features of the game with GIF previews:
 
 - The __main menu__, which has settings that allow you to change resolution and game audio levels.
 
@@ -48,7 +48,8 @@ An overview of the main features of the game with gif previews:
   <p align="center">
   <img width="500" height="400" src="https://github.com/iGenode/rotateris/blob/gifs/game%20over.gif?raw=true">
   </p>
-
+  
+  GIFs might take a while to load, so a full video is also available [here](https://youtu.be/mW0oe_7NQMM)
 
 # Tech stack
 
@@ -58,6 +59,14 @@ Here's a brief overview of the tech stack the rotateris uses:
 - System.IO used for writing and reading save data
 - Object Pooling used to optimize playing audio clips on demand and prevent too many instances of AudioSources from being instantiated
 - Splines package is used to create a path for the camera to follow when rotating around the playing fields
+
+# Install
+
+Download and install __latest release__ on repo's [release page](https://github.com/iGenode/rotateris/releases):
+ - Installer: You can install the game using an installer, which allows you to select the installation location and create an uninstaller. 
+ - Portable: The game is available in a ready-to-play format, packed in a zip file.
+
+___
 
 ##### TODO's
 
