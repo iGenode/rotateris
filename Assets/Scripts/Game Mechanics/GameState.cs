@@ -253,8 +253,13 @@ public class GameState : MonoBehaviour
     {
         _isRotating = true;
         var multiplier = shouldHurry ? 6 : 4 - (PlayingFieldCount * 0.07f) < 1 ? 1 : 4 - (PlayingFieldCount * 0.07f);
-        while (Vector3.Distance(_mainCamera.transform.position, destination) >= 1f)
+        var initialDirection = (destination - _mainCamera.transform.position).normalized;
+        // Checking if the camera surpassed the destination position, (not enough to prevent overrotation on high playingField counts)
+        // also checking if the dot product is greater than 0.5, which indicates that direction of rotation is still the same
+        while (Vector3.Distance(_mainCamera.transform.position, destination) >= 1f 
+            && Vector3.Dot(initialDirection, (destination - _mainCamera.transform.position).normalized) > 0.5f)
         {
+            //Debug.Log($"Dot product is {Vector3.Dot(initialDirection, (destination - _mainCamera.transform.position).normalized)}");
             //Debug.Log($"Current offset: {(_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * multiplier))) % 1f}");
             _currentOffset = (_currentOffset + 5f * direction * Time.deltaTime / (_splineLength / (PlayingFieldCount * multiplier))) % 1f;
 
